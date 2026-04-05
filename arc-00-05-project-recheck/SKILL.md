@@ -6,7 +6,7 @@ metadata:
   trigger-keywords: "recheck,diagnose,improve,iterate,project review,refactor,assess,fix,repair,enhance"
   applicable-stages: "0-28 (standalone tool)"
   priority: "1"
-  version: "4.0"
+  version: "4.1"
   author: researchclaw
 ---
 
@@ -35,11 +35,20 @@ This invariant is **non-negotiable** and overrides all other considerations. If 
 ### CORE INVARIANT (Non-Negotiable)
 
 **FINAL OUTPUT MUST BE:** A high-quality, verifiable, reproducible, authentic academic paper with:
+
+#### Hard Requirements (Must Satisfy All):
 - ✅ `main.tex` — LaTeX source file
 - ✅ `main.pdf` — Compiled PDF file (compile error-free)
 - ✅ `references.bib` — Citations with verifiable DOIs
 - ✅ `experiment_summary.json` — Real metrics from actual execution (no fabrication)
 - ✅ `reproducibility_report.json` — Complete reproducibility documentation
+- ✅ **≥30 citations** in references.bib
+- ✅ **≥20% of citations from recent 5 years** (published 2021-2026)
+
+#### Citation Quality Standards:
+- Each citation MUST have a verifiable DOI or arXiv ID
+- Self-citations limited to ≤20% of total references
+- At least 3 different citation sources (journals, conferences, arXiv, books)
 
 **ANTI-HALLUCINATION:** The paper must contain ZERO:
 - ❌ Fabricated experiment data or metrics
@@ -336,6 +345,8 @@ This invariant is **non-negotiable** and overrides all other considerations. If 
 | Code | Trigger | Retryable |
 |------|---------|-----------|
 | `E_RECHECK_INVARIANT_BROKEN` | **CORE INVARIANT VIOLATED** — Cannot produce a verifiable, reproducible, authentic academic paper with LaTeX + PDF output. This is a fatal error that cannot be retried. | **No (abort)** |
+| `E_RECHECK_CITATION_COUNT` | Citation count < 30 in references.bib | No (must add more citations) |
+| `E_RECHECK_CITATION_RECENCY` | < 20% of citations from recent 5 years | No (must update/add recent citations) |
 | `E_RECHECK_01` | Required output files missing | No |
 | `E_RECHECK_02` | Project path does not exist | No |
 | `E_RECHECK_03` | Cannot read project files | Yes (1 retry) |
@@ -876,6 +887,18 @@ Record each gate pass in `gates_passed` array.
    cd artifacts/<run_id>/stage-*/
    pdflatex -interaction=nonstopmode main.tex | grep -q "Error" && fail
    [ -s main.pdf ] || fail
+   ```
+
+5. **Citation hard requirements:**
+   ```bash
+   # Count total citations
+   total=$(grep -c "^@" artifacts/<run_id>/stage-*/references.bib 2>/dev/null || echo 0)
+   [ "$total" -ge 30 ] || fail with `E_RECHECK_CITATION_COUNT`
+
+   # Check recent citations (2021-2026)
+   recent=$(grep -E "year\s*=\s*\{(202[1-6])" artifacts/<run_id>/stage-*/references.bib 2>/dev/null | wc -l)
+   recent_pct=$((recent * 100 / total))
+   [ "$recent_pct" -ge 20 ] || fail with `E_RECHECK_CITATION_RECENCY`
    ```
 
 **If ANY check fails:**
