@@ -28,3 +28,8 @@ Decision is evidence-grounded and explicitly one of: `proceed`, `refine`, `pivot
 - `proceed` -> next `arc-07-01-paper-outline`
 - `refine` -> jump `arc-05-02-iterative-refine`
 - `pivot` -> jump `arc-03-02-hypothesis-gen`
+
+## Loop guard (canonical parity)
+Track attempts in `artifacts/<run_id>/decision_history.json`.
+- Max pivot/refine loops: `2`
+- On max attempts reached: force `proceed` and write `quality_warning.txt`

@@ -24,3 +24,6 @@ Write to `artifacts/<run_id>/stage-13/`:
 
 ## Definition of done
 Refinement loop converges or exits at max iteration with final experiment snapshot.
+
+## Retry policy
+- Max retries: `2` on refinement loop failure.

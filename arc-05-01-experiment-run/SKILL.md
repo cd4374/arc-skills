@@ -24,3 +24,6 @@ Write to `artifacts/<run_id>/stage-12/`:
 
 ## Definition of done
 Scheduled runs complete with metrics and run artifacts persisted.
+
+## Retry policy
+- Max retries: `2` on execution failures.

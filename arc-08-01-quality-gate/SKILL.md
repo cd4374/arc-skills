@@ -25,5 +25,6 @@ Write to `artifacts/<run_id>/stage-20/`:
 Quality assessment completed and explicit approve/reject decision recorded.
 
 ## Gate behavior
+- If `auto_approve_gates=true`: auto-approve and continue
 - Approve: continue to `arc-08-02-knowledge-archive`
 - Reject: rollback to `arc-07-01-paper-outline`

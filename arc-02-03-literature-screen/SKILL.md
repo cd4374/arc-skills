@@ -25,5 +25,6 @@ Write to `artifacts/<run_id>/stage-05/`:
 Relevance and quality screening completed with approval decision.
 
 ## Gate behavior
+- If `auto_approve_gates=true`: auto-approve and continue
 - Approve: continue to `arc-02-04-knowledge-extract`
 - Reject: rollback to `arc-02-02-literature-collect`

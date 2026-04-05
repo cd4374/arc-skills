@@ -23,3 +23,6 @@ Write to `artifacts/<run_id>/stage-04/`:
 
 ## Definition of done
 Candidate paper set collected from specified sources.
+
+## Retry policy
+- Max retries: `2` on transient collection failures.

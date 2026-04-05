@@ -24,3 +24,6 @@ Write to `artifacts/<run_id>/stage-23/`:
 
 ## Definition of done
 All citations are validated against real sources and hallucinations are flagged.
+
+## Blocking rule
+If hallucinated or unverifiable citations remain, mark stage as failed (`E23_VERIFY_FAIL`) and block completion until fixed/removed.

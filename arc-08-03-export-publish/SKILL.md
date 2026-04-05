@@ -18,9 +18,14 @@ From `artifacts/<run_id>/stage-19/`:
 - `paper_revised.md`
 
 ## Outputs
-Write to `artifacts/<run_id>/stage-22/`:
+Write to `artifacts/<run_id>/stage-22/` (and deliverables where applicable):
 - `paper_final.md`
+- `paper.tex`
+- `references.bib`
 - `code/`
+- `charts/`
+- `manifest.json`
+- conference template/style files as needed
 
 ## Definition of done
 Final paper export is complete in target format with code bundle attached.

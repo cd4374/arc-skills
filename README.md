@@ -25,11 +25,14 @@ Pure-skills research pipeline for AutoResearchClaw, using stage-addressable skil
 
 ## State files
 
-Runs persist state under:
+Runs persist state under run root:
 
-- `artifacts/<run_id>/state/pipeline_state.json`
-- `artifacts/<run_id>/state/checkpoint.json`
-- `artifacts/<run_id>/state/stage_history.jsonl`
+- `artifacts/<run_id>/pipeline_state.json`
+- `artifacts/<run_id>/checkpoint.json`
+- `artifacts/<run_id>/stage_history.jsonl`
+- `artifacts/<run_id>/decision_history.json`
+- `artifacts/<run_id>/heartbeat.json`
+- `artifacts/<run_id>/pipeline_summary.json`
 
 ## Notes
 
@@ -37,3 +40,7 @@ Gate-equivalent stages:
 - `arc-02-03-literature-screen`
 - `arc-04-01-experiment-design`
 - `arc-08-01-quality-gate`
+
+Decision loop guard:
+- `arc-06-02-research-decision` supports `proceed/refine/pivot`
+- max pivot/refine loops = 2, then forced proceed with warning

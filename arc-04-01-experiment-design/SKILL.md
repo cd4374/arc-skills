@@ -25,5 +25,6 @@ Write to `artifacts/<run_id>/stage-09/`:
 Experiment plan includes baselines, ablations, metrics, and approval decision.
 
 ## Gate behavior
+- If `auto_approve_gates=true`: auto-approve and continue
 - Approve: continue to `arc-04-02-code-generation`
 - Reject: rollback to `arc-03-02-hypothesis-gen`

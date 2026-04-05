@@ -14,7 +14,12 @@ metadata:
 - Canonical stage: 21 `KNOWLEDGE_ARCHIVE`
 
 ## Inputs
-- Prior run artifacts and stage history
+Aggregate from run-root and stages:
+- `stage_history.jsonl`
+- `decision_history.json`
+- `pipeline_summary.json` (if present)
+- stage health and outputs from `stage-01`..`stage-23`
+- final paper/export artifacts
 
 ## Outputs
 Write to `artifacts/<run_id>/stage-21/`:

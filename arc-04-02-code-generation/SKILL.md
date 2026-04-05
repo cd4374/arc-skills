@@ -24,3 +24,6 @@ Write to `artifacts/<run_id>/stage-10/`:
 
 ## Definition of done
 Multi-file runnable experiment project and implementation spec are generated.
+
+## Retry policy
+- Max retries: `2` on generation/validation failure.

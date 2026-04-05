@@ -18,6 +18,10 @@ From `artifacts/<run_id>/stage-14/` and `stage-15/`:
 - `analysis.md`
 - `decision.md`
 
+Prefer best-of-refine artifacts when present (run root):
+- `analysis_best.md`
+- `experiment_summary_best.json`
+
 ## Outputs
 Write to `artifacts/<run_id>/stage-16/`:
 - `outline.md`
