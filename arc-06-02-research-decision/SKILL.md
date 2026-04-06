@@ -78,14 +78,14 @@ This stage is the **decision point** — it does not gate approval but emits rou
 
 | Decision | Next Stage | Counts Against Cap | Rollback Target |
 |----------|-----------|-------------------|-----------------|
-| `proceed` | `arc-07-01` | no | — |
+| `proceed` | `arc-06-03` (result claim gate) → `arc-07-00` (template) → `arc-07-01` | no | — |
 | `refine` | `arc-05-02` | **yes** | stage-13 (`arc-05-02`) |
 | `pivot` | `arc-03-02` | **yes** | stage-08 (`arc-03-02`) |
 
 **MAX_DECISION_PIVOTS = 2**: If `decision_history.json` shows ≥2 prior `refine`/`pivot` decisions, this stage MUST:
 1. Output `decision: "proceed"` with `forced_proceed: true`
 2. Write `quality_warning.txt` to the run root
-3. Pipeline continues to stage 16 (no actual rollback occurs)
+3. Pipeline continues to stage 15.5 (result-claim-gate) then 15.7 (template) then stage 16 (no actual rollback occurs)
 
 On `refine`: orchestrator versions stage-13 through stage-15 (`stage-N/` → `stage-N_v{attempt}/`) then resumes from stage-13.
 On `pivot`: orchestrator versions stage-08 through stage-15 then resumes from stage-08.
@@ -162,6 +162,6 @@ If `pivot_count >= 2`:
 Document the evidence-based justification for the decision, referencing specific numbers from `analysis.md`.
 
 ### Step 7 — Handle Routing
-- `proceed` → advance to stage 16 (arc-07-01)
+- `proceed` → advance to stage 15.5 (arc-06-03 result-claim-gate), then to 15.7 (template-resolve), then to stage 16 (arc-07-01)
 - `refine` → initiate rollback to stage 13 (arc-05-02), increment pivot_count
 - `pivot` → initiate rollback to stage 8 (arc-03-02), increment pivot_count

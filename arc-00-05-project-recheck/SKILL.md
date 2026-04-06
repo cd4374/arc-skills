@@ -842,14 +842,44 @@ A Stage-20 quality score alone is not enough to unlock export or claim completio
 
 ### Step 12 — Pass Remaining Gates
 
-If quality target reached, complete remaining stages:
+If quality target reached, complete remaining stages in canonical order:
 
 ```bash
 # A real environment probe is mandatory before export or late-stage execution.
 [ -f artifacts/<run_id>/stage-00/environment.json ] || /invoke arc-00-04-environment-probe
 
+# Stage 7.5: Novelty gap gate (must pass before hypothesis generation)
+if [ ! -f artifacts/<run_id>/stage-07b/novelty_gap_report.json ]; then
+    /invoke arc-03-03-novelty-gap-gate
+fi
+
+# Stage 9.5: Reproducibility design gate (must pass before coding)
+if [ ! -f artifacts/<run_id>/stage-09b/reproducibility_design_report.json ]; then
+    /invoke arc-04-04-reproducibility-design-gate
+fi
+
+# Stage 15.5: Result claim gate (must pass before writing)
+if [ ! -f artifacts/<run_id>/stage-15b/claim_scope_report.json ]; then
+    /invoke arc-06-03-result-claim-gate
+fi
+
+# Stage 17.5: Writing compliance gate (must pass before peer review)
+if [ ! -f artifacts/<run_id>/stage-17b/writing_compliance_report.json ]; then
+    /invoke arc-07-05-writing-compliance-gate
+fi
+
+# Stage 18.5: Bibliography quality gate (must pass before review findings propagate)
+if [ ! -f artifacts/<run_id>/stage-18b/bibliography_quality_report.json ]; then
+    /invoke arc-08-05-bibliography-quality-gate
+fi
+
 # Stage 20 must be approved before any stage-22+ handoff can be treated as valid.
 /invoke arc-08-01-quality-gate
+
+# Stage 21.5: Reproducibility bundle gate (must pass before export)
+if [ ! -f artifacts/<run_id>/stage-21b/reproducibility_bundle_report.json ]; then
+    /invoke arc-08-06-reproducibility-bundle-gate
+fi
 
 # Export must exist before citation verify or later gates can run.
 [ -f artifacts/<run_id>/stage-22/main.pdf ] || /invoke arc-08-03-export-publish
@@ -862,6 +892,11 @@ fi
 # Stage 24: Paper review loop (if not already run)
 if [ ! -f artifacts/<run_id>/stage-24/AUTO_REVIEW.md ]; then
     /invoke arc-09-01-paper-review-loop
+fi
+
+# Stage 24.5: Academic integrity gate (must pass before camera-ready)
+if [ ! -f artifacts/<run_id>/stage-24b/academic_integrity_report.json ]; then
+    /invoke arc-09-03-academic-integrity-gate
 fi
 
 # Stage 25: Paper polish
@@ -878,9 +913,12 @@ fi
 
 # Stage 28: Submission format gate
 /invoke arc-10-03-submission-format-gate
+
+# Stage 28.5: Final acceptance gate
+/invoke arc-10-05-final-acceptance-gate
 ```
 
-Record each completed late-stage gate in `gates_passed` array. Do not mark final acceptance until a real Stage-0 probe result exists, Stage 20 is approved, and citation verification, paper polish, numeric-truth, claim-evidence trace, figure quality, and submission-format outputs all exist and pass their blocking conditions.
+Record each completed late-stage gate in `gates_passed` array. Do not mark final acceptance until a real Stage-0 probe result exists, Stage 20 is approved, and all critical gates (novelty, reproducibility design, result claim, writing compliance, bibliography quality, reproducibility bundle, academic integrity, numeric truth, claim-evidence trace, figure quality, submission format, final acceptance) have passed.
 
 ### Step 13 — Generate Final Reports
 

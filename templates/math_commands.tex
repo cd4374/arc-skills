@@ -1,0 +1,296 @@
+% math_commands.tex
+% Common mathematical notation and commands for ML/AI papers
+% Include with: \input{math_commands.tex}
+
+% =============================================================================
+% General Notation
+% =============================================================================
+
+% Vectors and matrices
+\newcommand{\vect}[1]{\boldsymbol{\mathbf{#1}}}
+\newcommand{\mat}[1]{\boldsymbol{\mathbf{#1}}}
+\newcommand{\tensor}[1]{\mathcal{#1}}
+
+% Transpose
+\newcommand{\T}{^{\top}}
+\newcommand{\Tr}{^{\intercal}}
+
+% Inverse
+\newcommand{\inv}{^{-1}}
+
+% Hermitian conjugate
+\newcommand{\herm}{^{\dagger}}
+
+% Vector and matrix norms
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\normp}[2]{\left\|#1\right\|_{#2}}
+\newcommand{\abs}[1]{\left|#1\right|}
+
+% Trace and determinant
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\Det}{det}
+
+% Sets
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\C}{\mathbb{C}}
+
+% =============================================================================
+% Probability and Statistics
+% =============================================================================
+
+% Probability operators
+\DeclareMathOperator{\E}{\mathbb{E}}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\Cov}{Cov}
+\DeclareMathOperator{\KL}{KL}
+\DeclareMathOperator{\Entropy}{H}
+\DeclareMathOperator{\MI}{I}
+
+% Probability commands
+\newcommand{\prob}[1]{\mathbb{P}\left(#1\right)}
+\newcommand{\expect}[1]{\E\left[#1\right]}
+\newcommand{\expectsub}[2]{\E_{#1}\left[#2\right]}
+\newcommand{\var}[1]{\Var\left[#1\right]}
+\newcommand{\cov}[1]{\Cov\left[#1\right]}
+
+% Distributions
+\DeclareMathOperator{\Ndist}{\mathcal{N}}
+\DeclareMathOperator{\Unif}{Uniform}
+\DeclareMathOperator{\Bern}{Bernoulli}
+\DeclareMathOperator{\Cat}{Categorical}
+
+% Gaussian
+\newcommand{\gauss}[2]{\Ndist\left(#1, #2\right)}
+
+% =============================================================================
+% Optimization
+% =============================================================================
+
+% Argmin/argmax
+\DeclareMathOperator{\argmin}{arg\,min}
+\DeclareMathOperator{\argmax}{arg\,max}
+\DeclareMathOperator{\arginf}{arg\,inf}
+\DeclareMathOperator{\argsup}{arg\,sup}
+
+% Min/max
+\DeclareMathOperator{\minimize}{minimize}
+\DeclareMathOperator{\maximize}{maximize}
+
+% Subgradient
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\prox}{prox}
+
+% =============================================================================
+% Linear Algebra
+% =============================================================================
+
+% Inner products
+\newcommand{\inner}[2]{\left\langle #1, #2 \right\rangle}
+\newcommand{\dotp}[2]{#1 \cdot #2}
+
+% Outer product
+\newcommand{\outerp}[2]{#1 \otimes #2}
+
+% Matrix operations
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\nullity}{nullity}
+\DeclareMathOperator{\range}{range}
+\DeclareMathOperator{\nullspace}{null}
+\DeclareMathOperator{\spanop}{span}
+
+% Eigenvalues
+\DeclareMathOperator{\eig}{eig}
+\DeclareMathOperator{\eigmax}{\lambda_{max}}
+\DeclareMathOperator{\eigmin}{\lambda_{min}}
+
+% Singular values
+\DeclareMathOperator{\svd}{svd}
+\DeclareMathOperator{\sigmamax}{\sigma_{max}}
+\DeclareMathOperator{\sigmamin}{\sigma_{min}}
+
+% =============================================================================
+% Machine Learning Notation
+% =============================================================================
+
+% Dataset
+\newcommand{\dataset}{\mathcal{D}}
+\newcommand{\train}{\mathcal{D}_{\text{train}}}
+\newcommand{\test}{\mathcal{D}_{\text{test}}}
+\newcommand{\val}{\mathcal{D}_{\text{val}}}
+
+% Data samples
+\newcommand{\x}{\vect{x}}
+\newcommand{\y}{y}
+\newcommand{\X}{\mat{X}}
+\newcommand{\Y}{\vect{y}}
+
+% Labels and predictions
+\newcommand{\yhat}{\hat{y}}
+\newcommand{\Yhat}{\hat{\vect{y}}}
+\newcommand{\fhat}{\hat{f}}
+
+% Parameters
+\newcommand{\w}{\vect{w}}
+\newcommand{\what}{\hat{\vect{w}}}
+\newcommand{\wstar}{\vect{w}^{*}}
+\newcommand{\theta}{\boldsymbol{\theta}}
+\newcommand{\thetahat}{\hat{\boldsymbol{\theta}}}
+\newcommand{\thetastar}{\boldsymbol{\theta}^{*}}
+
+% Gradients
+\newcommand{\grad}[1]{\nabla_{#1}}
+\newcommand{\gradw}{\nabla_{\w}}
+\newcommand{\gradtheta}{\nabla_{\theta}}
+
+% Loss functions
+\newcommand{\loss}[1]{\mathcal{L}\left(#1\right)}
+\newcommand{\losshat}[1]{\hat{\mathcal{L}}\left(#1\right)}
+
+% Regularization
+\newcommand{\reg}[1]{\mathcal{R}\left(#1\right)}
+
+% Objective
+\newcommand{\obj}[1]{\mathcal{J}\left(#1\right)}
+
+% Learning rate
+\newcommand{\lr}{\eta}
+\newcommand{\stepsize}{\alpha}
+
+% Activation functions
+\DeclareMathOperator{\relu}{ReLU}
+\DeclareMathOperator{\sigmoid}{sigmoid}
+\DeclareMathOperator{\softmax}{softmax}
+\DeclareMathOperator{\tanhop}{tanh}
+
+% Layer notation
+\newcommand{\layer}[1]{^{[#1]}}
+
+% =============================================================================
+% Deep Learning
+% =============================================================================
+
+% Network
+\newcommand{\net}{f_{\theta}}
+\newcommand{\netn}{f_{\theta}^{(n)}}
+
+% Attention
+\DeclareMathOperator{\Attention}{Attention}
+\DeclareMathOperator{\MultiHead}{MultiHead}
+\DeclareMathOperator{\SelfAttention}{SelfAttention}
+
+% Transformer
+\DeclareMathOperator{\LayerNorm}{LayerNorm}
+\DeclareMathOperator{\FFN}{FFN}
+
+% Convolution
+\DeclareMathOperator{\Conv}{Conv}
+\DeclareMathOperator{\Pool}{Pool}
+
+% =============================================================================
+% Reinforcement Learning
+% =============================================================================
+
+% States and actions
+\newcommand{\state}{s}
+\newcommand{\action}{a}
+\newcommand{\State}{\mathcal{S}}
+\newcommand{\Action}{\mathcal{A}}
+
+% Rewards
+\newcommand{\reward}{r}
+\newcommand{\Reward}{\mathcal{R}}
+
+% Policy
+\newcommand{\policy}{\pi}
+\newcommand{\policytheta}{\pi_{\theta}}
+
+% Value functions
+\newcommand{\vval}{V}
+\newcommand{\qval}{Q}
+\newcommand{\aval}{A}
+
+% Advantage
+\newcommand{\advantage}{A}
+
+% Return
+\newcommand{\return}{G}
+
+% Discount factor
+\newcommand{\discount}{\gamma}
+
+% =============================================================================
+% Common Functions and Operators
+% =============================================================================
+
+% Big-O notation
+\DeclareMathOperator{\bigO}{\mathcal{O}}
+\DeclareMathOperator{\littleo}{o}
+\DeclareMathOperator{\bigOmega}{\Omega}
+\DeclareMathOperator{\bigTheta}{\Theta}
+
+% Standard functions
+\DeclareMathOperator{\softmaxop}{softmax}
+\DeclareMathOperator{\logsumexp}{log-sum-exp}
+
+% Indicator function
+\newcommand{\indicator}[1]{\mathbb{I}\left[#1\right]}
+
+% Cardinality
+\newcommand{\card}[1]{\left|#1\right|}
+
+% Floor and ceiling
+\DeclareMathOperator{\floor}{floor}
+\DeclareMathOperator{\ceil}{ceil}
+
+% =============================================================================
+% Brackets and Delimiters
+% =============================================================================
+
+% Parentheses
+\newcommand{\paren}[1]{\left(#1\right)}
+\newcommand{\bracket}[1]{\left[#1\right]}
+\newcommand{\brace}[1]{\left\{#1\right\}}
+\newcommand{\absval}[1]{\left|#1\right|}
+
+% Set notation
+\newcommand{\set}[1]{\left\{#1\right\}}
+
+% Conditional
+\newcommand{\given}{\,|\,}
+\newcommand{\suchthat}{\,:\,}
+
+% =============================================================================
+% Common Abbreviations
+% =============================================================================
+
+% i.i.d.
+\newcommand{\iid}{\textit{i.i.d.}}
+
+% w.r.t., w.p., etc.
+\newcommand{\wrt}{w.r.t.}
+\newcommand{\wp}{w.p.}
+\newcommand{\st}{s.t.}
+
+% et al.
+\newcommand{\etal}{\textit{et al.}}
+
+% e.g., i.e., cf.
+\newcommand{\eg}{e.g.,}
+\newcommand{\ie}{i.e.,}
+\newcommand{\cf}{cf.}
+
+% =============================================================================
+% Custom Operators (add your own below)
+% =============================================================================
+
+% Add your custom mathematical notation here
+%
+% \newcommand{\yourcommand}[n]{definition}
+%
+% Example:
+% \newcommand{\model}{\mathcal{M}}
+% \newcommand{\embed}[1]{\text{embed}(#1)}

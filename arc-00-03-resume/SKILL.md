@@ -100,12 +100,20 @@ Route by `pipeline_state.status`:
 ### Step 4 — Verify Stage History Integrity
 Check `stage_history.jsonl` confirms claimed completed stages actually produced their outputs:
 - For each completed stage, verify its output directory exists and is non-empty
+- If Stage 7.5 is claimed complete, verify `stage-07b/novelty_gap_report.json` exists and `novelty_gate_pass == true`
+- If Stage 9.5 is claimed complete, verify `stage-09b/reproducibility_design_report.json` exists and `reproducibility_design_pass == true`
+- If Stage 15.5 is claimed complete, verify `stage-15b/claim_scope_report.json` exists and `claim_scope_pass == true`
+- If Stage 17.5 is claimed complete, verify `stage-17b/writing_compliance_report.json` exists and `writing_compliance_pass == true`
+- If Stage 18.5 is claimed complete, verify `stage-18b/bibliography_quality_report.json` exists and `bibliography_quality_pass == true`
+- If Stage 21.5 is claimed complete, verify `stage-21b/reproducibility_bundle_report.json` exists and `reproducibility_bundle_pass == true`
 - If Stage 23 is claimed complete, verify citation verification artifacts still exist, were not invalidated, and do not report `hallucinated > 0` or `unverifiable > 0`
+- If Stage 24.5 is claimed complete, verify `stage-24b/academic_integrity_report.json` exists and `academic_integrity_pass == true`
 - If Stage 25 is claimed complete, verify the polished package still includes reproducibility metadata and the expected bibliography/package artifacts
 - If Stage 24 is claimed complete, verify `stage-24/review_state.json` and `stage-24/AUTO_REVIEW.md` still exist
 - If Stage 26 progress is claimed, verify `stage-26-pre/numeric_truth_report.json` exists; if Stage 26 is claimed complete, verify that report still reflects `numeric_truth_gate_pass == true`
 - If Stage 27 is claimed complete, verify figure-quality artifacts still exist and still correspond to the stage-25 polished package
 - If Stage 28 is claimed complete, verify `stage-28/submission_format_report.json` still exists and still reflects a passing final gate
+- If Stage 28.5 is claimed complete, verify `stage-28b/final_acceptance_report.json` exists and `final_acceptance_pass == true`
 - If any required late-stage artifact is missing or stale → fail with `E_RESUME_03`
 
 ### Step 5 — Determine Resume Point

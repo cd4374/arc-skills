@@ -1,0 +1,102 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+% CVPR Template (for CVPR, ICCV, ECCV)
+% Based on the official CVF style
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{cleveref}
+\usepackage[numbers]{natbib}
+
+% CVPR style file (requires cvpr.sty from official release)
+% Download from: https://github.com/cvpr-org/author-kit
+%
+% \usepackage[review]{cvpr}     % for submission
+% \usepackage[preprint]{cvpr}   % for preprint
+% \usepackage[final]{cvpr}      % for camera-ready
+
+% Page geometry
+\usepackage[letterpaper, margin=0.75in]{geometry}
+
+% Line spacing
+\usepackage{setspace}
+\setstretch{1.0}
+
+% Theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Title and author
+\title{[TITLE]}
+\author{[AUTHOR 1] \quad [AUTHOR 2] \quad [AUTHOR 3] \\[1ex]
+  [AFFILIATION] \\
+  \texttt{\{[EMAILS]\}@[DOMAIN]}
+}
+
+% CVPR ID (for review)
+% \def\cvprPaperID{****}
+% \def\confName{CVPR}
+% \def\confYear{2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+[ABSTRACT]
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+[INTRODUCTION]
+
+\section{Related Work}
+\label{sec:related}
+[RELATED WORK]
+
+\section{Method}
+\label{sec:method}
+[METHOD]
+
+\section{Experiments}
+\label{sec:experiments}
+[EXPERIMENTS]
+
+\section{Conclusion}
+\label{sec:conclusion}
+[CONCLUSION]
+
+\section*{Broader Impact}
+[BROADER IMPACT]
+
+\section*{Limitations}
+[LIMITATIONS]
+
+\bibliography{references}
+\bibliographystyle{ieee_fullname}
+
+\appendix
+\section{Additional Details}
+[APPENDIX]
+
+\end{document}

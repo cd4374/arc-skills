@@ -1,12 +1,12 @@
 ---
 name: arc-06-03-result-claim-gate
-description: Pre-writing support gate between research decision and paper outlining. Converts experiment evidence into an explicit allowed-claims contract so the paper cannot outrun the results.
+description: Stage 15.5 (GATE) — Freeze the claim-scope contract before template resolution and paper outlining. Converts experiment evidence into an explicit allowed-claims contract so the paper cannot outrun the results.
 metadata:
-  category: pipeline-support
-  trigger-keywords: "result claim gate,claim scope,allowed claims,pre writing gate"
-  applicable-stages: "post-15, pre-16"
+  category: pipeline-stage
+  trigger-keywords: "result claim gate,claim scope,allowed claims,stage 15.5"
+  applicable-stages: "15.5"
   priority: "1"
-  version: "1.0"
+  version: "1.1"
   author: researchclaw
 ---
 
@@ -22,12 +22,13 @@ Derive an explicit claim-scope contract from the completed experiments before pa
 - Classify each claim as `allowed`, `allowed_with_caveat`, or `disallowed`
 - Record at least one evidence pointer into `experiment_summary.json` or `analysis.md`
 - Record mandatory wording constraints for every `allowed_with_caveat` claim
-- Set `paper_writing_ready: true` only if every core contribution claim is either `allowed` or `allowed_with_caveat`
+- Set `claim_scope_pass: true` only if every core contribution claim is either `allowed` or `allowed_with_caveat`
 
 Hard constraints:
 - `disallowed` claims MUST NOT appear in stage 16, 17, 19, 22, or 25 outputs
 - `allowed_with_caveat` claims MUST carry their caveat wording forward into writing
 - If stage 15 was a forced proceed, `forced_scope_narrowing: true` MUST be recorded
+- The gate MUST block (`claim_scope_pass: false`) if any core claim is unsupported
 
 ---
 
@@ -41,10 +42,10 @@ Hard constraints:
 
 ## Outputs
 
-### `artifacts/<run_id>/claim_scope/claim_scope_report.json`
+### `artifacts/<run_id>/stage-15b/claim_scope_report.json`
 ```json
 {
-  "paper_writing_ready": true,
+  "claim_scope_pass": true,
   "forced_scope_narrowing": false,
   "claims": [
     {
@@ -77,11 +78,31 @@ Hard constraints:
 }
 ```
 
-### `artifacts/<run_id>/claim_scope/allowed_claims.md`
+### `artifacts/<run_id>/stage-15b/allowed_claims.md`
 Human-readable summary of:
 - allowed claims
 - allowed claims that require explicit caveats
 - disallowed claims that the paper must avoid
+
+---
+
+## Gate Behavior
+
+| Action | Outcome |
+|--------|---------|
+| `auto_approve_gates=true` and `claim_scope_pass=true` | `done`, advance to stage 15.7 (template-resolve) |
+| `approve` and `claim_scope_pass=true` | `done`, advance to stage 15.7 |
+| `reject` or `claim_scope_pass=false` | `rejected`, rollback to stage 15 |
+
+---
+
+## Rollback Contract
+On `reject` or `claim_scope_pass=false`: rollback target is **stage 15** (`arc-06-02-research-decision`).
+
+---
+
+## State Transition
+`pending` → `running` → `blocked_approval` | `failed`
 
 ---
 
@@ -116,10 +137,10 @@ If `decision_routing.json` shows `forced_proceed: true`, do NOT treat that as pe
 - record any blocked claim in `disallowed_claim_ids`
 
 ### Step 6 — Write Outputs
-Write `claim_scope_report.json` and `allowed_claims.md` under `artifacts/<run_id>/claim_scope/`.
+Write `claim_scope_report.json` and `allowed_claims.md` under `artifacts/<run_id>/stage-15b/`.
 
-### Step 7 — Validate
-Ensure every intended top-level claim has a status and at least one evidence pointer. Fail if the report is missing, malformed, or would allow writing to proceed without an explicit claim contract.
+### Step 7 — Gate Decision
+If any core claim is unsupported (not `allowed` or `allowed_with_caveat`), set `claim_scope_pass=false` and fail with `E15B_UNSUPPORTED_CORE_CLAIM`. Otherwise block for approval and then advance to stage 15.7.
 
 ---
 
@@ -131,9 +152,9 @@ Ensure every intended top-level claim has a status and at least one evidence poi
 | Claim coverage | Every intended top-level claim has a `claim_id` and a status |
 | Evidence pointers present | Every claim has at least one evidence pointer |
 | Caveats explicit | Every `allowed_with_caveat` claim has non-empty `required_caveat` |
-| Writing readiness explicit | `paper_writing_ready` is present and boolean |
+| Gate pass flag | `claim_scope_pass == true` |
 
-**Failure**: Missing claim-scope contract or evidence linkage → `E15B`
+**Failure**: Missing claim-scope contract, evidence linkage, or unsupported core claim → `E15B`
 
 ---
 
@@ -148,7 +169,7 @@ Ensure every intended top-level claim has a status and at least one evidence poi
 ---
 
 ## Retry Policy
-Max retries: **1** — retry only if classification output is malformed.
+Max retries: **0** — gate rejection uses rollback path.
 
 ---
 

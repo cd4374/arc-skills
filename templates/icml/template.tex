@@ -1,0 +1,96 @@
+\documentclass{article}
+
+% ICML 2026 Template
+% Usage:
+%   \usepackage[accepted]{icml2026}  % for camera-ready
+%   \usepackage{icml2026}            % for submission (anonymous)
+%   \usepackage[preprint]{icml2026}   % for preprint
+
+\usepackage{icml2026}
+
+% Additional packages
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[capitalize,noabbrev]{cleveref}
+
+% Theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Title and metadata
+\icmltitle{[TITLE]}
+\icmltitlerunning{[SHORT TITLE]}
+
+\begin{document}
+
+\twocolumn[
+  \icmltitle{[TITLE]}
+  \icmlsetsymbol{equal}{*}
+  \begin{icmlauthorlist}
+    \icmlauthor{[AUTHOR 1]}{equal,aff1}
+    \icmlauthor{[AUTHOR 2]}{equal,aff1}
+  \end{icmlauthorlist}
+  \icmlaffiliation{aff1}{[AFFILIATION]}
+  \icmlcorrespondingauthor{[AUTHOR 1]}{[EMAIL]}
+  \icmlkeywords{Machine Learning, [KEYWORDS]}
+  \vskip 0.3in
+]
+
+\printAffiliationsAndNotice{}
+
+\begin{abstract}
+[ABSTRACT]
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+[INTRODUCTION]
+
+\section{Related Work}
+\label{sec:related}
+[RELATED WORK]
+
+\section{Method}
+\label{sec:method}
+[METHOD]
+
+\section{Experiments}
+\label{sec:experiments}
+[EXPERIMENTS]
+
+\section{Conclusion}
+\label{sec:conclusion}
+[CONCLUSION]
+
+\section*{Broader Impact}
+[BROADER IMPACT]
+
+\section*{Limitations}
+[LIMITATIONS]
+
+\bibliography{references}
+\bibliographystyle{icml2026}
+
+\appendix
+\onecolumn
+\section{Additional Details}
+[APPENDIX]
+
+\end{document}

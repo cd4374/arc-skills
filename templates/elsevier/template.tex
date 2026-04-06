@@ -1,0 +1,107 @@
+\documentclass[preprint,12pt]{elsarticle}
+
+% Elsevier Journal Template
+% Based on the official elsarticle class
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{cleveref}
+
+% Theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Journal specification
+\journal{[JOURNAL NAME]}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{[TITLE]}
+
+\author[inst1]{[AUTHOR 1]}
+\author[inst1,inst2]{[AUTHOR 2]}
+\author[inst2]{[AUTHOR 3]}
+
+\affiliation[inst1]{organization={[AFFILIATION 1]},
+            addressline={[ADDRESS LINE 1]},
+            city={[CITY]},
+            postcode={[POSTCODE]},
+            country={[COUNTRY]}}
+\affiliation[inst2]{organization={[AFFILIATION 2]},
+            addressline={[ADDRESS LINE 2]},
+            city={[CITY]},
+            postcode={[POSTCODE]},
+            country={[COUNTRY]}}
+
+\begin{abstract}
+[ABSTRACT]
+\end{abstract}
+
+\begin{highlights}
+\item [HIGHLIGHT 1]
+\item [HIGHLIGHT 2]
+\item [HIGHLIGHT 3]
+\end{highlights}
+
+\begin{keywords}
+[KEYWORDS]
+\end{keywords}
+
+\end{frontmatter}
+
+\section{Introduction}
+\label{sec:intro}
+[INTRODUCTION]
+
+\section{Related Work}
+\label{sec:related}
+[RELATED WORK]
+
+\section{Method}
+\label{sec:method}
+[METHOD]
+
+\section{Experiments}
+\label{sec:experiments}
+[EXPERIMENTS]
+
+\section{Conclusion}
+\label{sec:conclusion}
+[CONCLUSION]
+
+\section*{Acknowledgments}
+[ACKNOWLEDGMENTS]
+
+\section*{Declaration of competing interest}
+[COMPETING INTEREST]
+
+\bibliographystyle{elsarticle-num}
+\bibliography{references}
+
+\appendix
+\section{Additional Details}
+[APPENDIX]
+
+\end{document}

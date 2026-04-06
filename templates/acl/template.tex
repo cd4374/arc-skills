@@ -1,0 +1,97 @@
+\documentclass[11pt]{article}
+
+% ACL Template (for ACL, EMNLP, NAACL, etc.)
+% Based on the official ACL style
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{cleveref}
+\usepackage[numbers]{natbib}
+
+% ACL style file (requires acl.sty from official release)
+% Download from: https://github.com/acl-org/acl-style-files
+%
+% \usepackage[review]{acl}  % for submission
+% \usepackage[preprint]{acl} % for preprint
+% \usepackage[final]{acl}   % for camera-ready
+
+% Page geometry
+\usepackage[letterpaper, margin=1in]{geometry}
+
+% Line spacing (ACL uses 1.0)
+\usepackage{setspace}
+\setstretch{1.0}
+
+% Theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Title and author
+\title{[TITLE]}
+\author{[AUTHOR] \\[1ex]
+  [AFFILIATION] \\
+  \texttt{[EMAIL]}
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+[ABSTRACT]
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+[INTRODUCTION]
+
+\section{Related Work}
+\label{sec:related}
+[RELATED WORK]
+
+\section{Method}
+\label{sec:method}
+[METHOD]
+
+\section{Experiments}
+\label{sec:experiments}
+[EXPERIMENTS]
+
+\section{Conclusion}
+\label{sec:conclusion}
+[CONCLUSION]
+
+\section*{Ethical Considerations}
+[ETHICAL CONSIDERATIONS]
+
+\section*{Limitations}
+[LIMITATIONS]
+
+\bibliography{references}
+\bibliographystyle{acl_natbib}
+
+\appendix
+\section{Additional Details}
+[APPENDIX]
+
+\end{document}

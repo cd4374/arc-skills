@@ -1,0 +1,89 @@
+\documentclass[journal]{IEEEtran}
+
+% IEEE Journal Template
+% Based on the official IEEEtran class
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{cleveref}
+
+% Theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Title and author
+\title{[TITLE]}
+\author{[AUTHOR 1],~\IEEEmembership{Member,~IEEE,}
+        [AUTHOR 2],~\IEEEmembership{Fellow,~IEEE,}
+        and~[AUTHOR 3]
+\thanks{[AUTHOR 1] is with [AFFILIATION 1].}
+\thanks{[AUTHOR 2] is with [AFFILIATION 2].}
+\thanks{[AUTHOR 3] is with [AFFILIATION 3].}
+\thanks{Manuscript received [DATE]; revised [DATE]; accepted [DATE].}}
+
+\begin{document}
+
+\markboth{IEEE Transactions on [JOURNAL],~Vol.~XX, No.~X, [MONTH]~20XX}%
+{[AUTHOR \MakeLowercase{\textit{et al.}}]: [TITLE]}
+
+\maketitle
+
+\begin{abstract}
+[ABSTRACT]
+\end{abstract}
+
+\begin{IEEEkeywords}
+[KEYWORDS]
+\end{IEEEkeywords}
+
+\section{Introduction}
+\label{sec:intro}
+[INTRODUCTION]
+
+\section{Related Work}
+\label{sec:related}
+[RELATED WORK]
+
+\section{Method}
+\label{sec:method}
+[METHOD]
+
+\section{Experiments}
+\label{sec:experiments}
+[EXPERIMENTS]
+
+\section{Conclusion}
+\label{sec:conclusion}
+[CONCLUSION]
+
+\section*{Acknowledgments}
+[ACKNOWLEDGMENTS]
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\appendices
+\section{Additional Details}
+[APPENDIX]
+
+\end{document}

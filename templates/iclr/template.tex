@@ -1,0 +1,94 @@
+\documentclass[10pt]{article}
+
+% ICLR 2026 Template
+% Based on the official OpenReview template
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{times}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{cleveref}
+\usepackage[numbers]{natbib}
+
+% Page geometry
+\usepackage[letterpaper, margin=1in]{geometry}
+
+% Line spacing
+\usepackage{setspace}
+\setstretch{1.0}
+
+% Theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Title and author
+\title{[TITLE]}
+\author{[AUTHOR] \\
+  [AFFILIATION] \\
+  \texttt{[EMAIL]}
+}
+
+% ICLR specific commands
+\newcommand{\iclrtitle}[1]{\title{#1}}
+\newcommand{\iclrauthor}[1]{\author{#1}}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+[ABSTRACT]
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+[INTRODUCTION]
+
+\section{Related Work}
+\label{sec:related}
+[RELATED WORK]
+
+\section{Method}
+\label{sec:method}
+[METHOD]
+
+\section{Experiments}
+\label{sec:experiments}
+[EXPERIMENTS]
+
+\section{Conclusion}
+\label{sec:conclusion}
+[CONCLUSION]
+
+\section*{Broader Impact}
+[BROADER IMPACT]
+
+\section*{Limitations}
+[LIMITATIONS]
+
+\bibliography{references}
+\bibliographystyle{iclr2026}
+
+\appendix
+\section{Additional Details}
+[APPENDIX]
+
+\end{document}

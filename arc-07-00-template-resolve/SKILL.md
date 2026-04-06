@@ -1,12 +1,12 @@
 ---
 name: arc-07-00-template-resolve
-description: Pre-export template resolver — choose and normalize the target submission template family, version, and package rules before final LaTeX export.
+description: Stage 15.7 — Choose and normalize the target submission template family, version, and package rules after claim-scope is frozen and before paper outlining.
 metadata:
-  category: pipeline-support
-  trigger-keywords: "template resolve,venue template,journal template,latex template"
-  applicable-stages: "pre-16, pre-22, pre-25, pre-28"
+  category: pipeline-stage
+  trigger-keywords: "template resolve,venue template,journal template,latex template,stage 15.7"
+  applicable-stages: "15.7"
   priority: "1"
-  version: "1.0"
+  version: "1.1"
   author: researchclaw
 ---
 

@@ -1,0 +1,120 @@
+% neurips_2026.sty
+% Style file for NeurIPS 2026
+% Based on the official NeurIPS template
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{neurips_2026}[2025/01/01 NeurIPS 2026 style file]
+
+% Options
+\newif\if@neuripsfinal\@neuripsfinalfalse
+\newif\if@preprint\@preprintfalse
+\newif\if@natbib\@natbibtrue
+\newif\if@nonatbib\@nonatbibfalse
+
+\DeclareOption{final}{\@neuripsfinaltrue}
+\DeclareOption{preprint}{\@preprinttrue}
+\DeclareOption{nonatbib}{\@nonatbibtrue}
+\DeclareOption{natbib}{\@natbibtrue}
+\ProcessOptions
+
+% Required packages
+\RequirePackage[utf8]{inputenc}
+\RequirePackage[T1]{fontenc}
+\RequirePackage{times}
+\RequirePackage{microtype}
+\RequirePackage{graphicx}
+\RequirePackage{xcolor}
+\RequirePackage{hyperref}
+\RequirePackage{booktabs}
+\RequirePackage{caption}
+\RequirePackage{subcaption}
+\RequirePackage{algorithm}
+\RequirePackage{algorithmic}
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{amsthm}
+
+% Page geometry
+\RequirePackage[letterpaper, margin=1in]{geometry}
+
+% Line spacing
+\RequirePackage{setspace}
+\setstretch{1.0}
+
+% Bibliography
+\if@natbib
+  \RequirePackage[numbers]{natbib}
+  \bibliographystyle{plainnat}
+\fi
+
+% Section formatting
+\RequirePackage{titlesec}
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{1em}{}
+
+% Theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Title formatting
+\def\@title{}
+\def\@author{}
+\def\@affiliation{}
+
+\renewcommand{\title}[1]{\def\@title{#1}}
+\renewcommand{\author}[1]{\def\@author{#1}}
+\newcommand{\affiliation}[1]{\def\@affiliation{#1}}
+
+% Header
+\RequirePackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\if@neuripsfinal
+  \fancyhead[L]{\small\textit{\@title}}
+\else
+  \fancyhead[L]{\small\textit{Anonymous submission}}
+\fi
+\fancyhead[R]{\small\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+% Abstract formatting
+\renewenvironment{abstract}{%
+  \begin{center}
+  \begin{minipage}{0.9\textwidth}
+  \small
+}{%
+  \end{minipage}
+  \end{center}
+  \vspace{0.5em}
+}
+
+% Custom commands
+\newcommand{\theHalgorithm}{\arabic{algorithm}}
+
+% Colors
+\definecolor{darkblue}{rgb}{0,0,0.5}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=darkblue,
+  citecolor=darkblue,
+  urlcolor=darkblue,
+  pdfstartview=FitH
+}
+
+% Line numbers for review
+\if@neuripsfinal
+\else
+  \RequirePackage{lineno}
+  \linenumbers
+\fi
+
+% End of style file
+\endinput

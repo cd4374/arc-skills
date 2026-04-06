@@ -1,0 +1,107 @@
+\documentclass{svjour3}
+
+% Springer Journal Template
+% Based on the official svjour3 class
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{cleveref}
+
+% Theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% Journal specification
+\journalname{[JOURNAL NAME]}
+
+\begin{document}
+
+\title{[TITLE]
+\thanks{This work was supported by [FUNDING].}
+}
+\subtitle{[SUBTITLE]}
+
+\author{
+  [AUTHOR 1] \and
+  [AUTHOR 2] \and
+  [AUTHOR 3]
+}
+
+\institute{
+  [AUTHOR 1] \at
+  [AFFILIATION 1] \\
+  \email{[EMAIL 1]}
+  \and
+  [AUTHOR 2] \at
+  [AFFILIATION 2] \\
+  \email{[EMAIL 2]}
+  \and
+  [AUTHOR 3] \at
+  [AFFILIATION 3] \\
+  \email{[EMAIL 3]}
+}
+
+\date{Received: [DATE] / Accepted: [DATE]}
+
+\maketitle
+
+\begin{abstract}
+[ABSTRACT]
+\keywords{[KEYWORDS]}
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+[INTRODUCTION]
+
+\section{Related Work}
+\label{sec:related}
+[RELATED WORK]
+
+\section{Method}
+\label{sec:method}
+[METHOD]
+
+\section{Experiments}
+\label{sec:experiments}
+[EXPERIMENTS]
+
+\section{Conclusion}
+\label{sec:conclusion}
+[CONCLUSION]
+
+\begin{acknowledgements}
+[ACKNOWLEDGMENTS]
+\end{acknowledgements}
+
+\section*{Conflict of Interest}
+[CONFLICT OF INTEREST]
+
+\bibliographystyle{spmpsci}
+\bibliography{references}
+
+\appendix
+\section{Additional Details}
+[APPENDIX]
+
+\end{document}

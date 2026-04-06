@@ -136,29 +136,38 @@ Stage 0 (`arc-00-04-environment-probe`) runs BEFORE Stage 1 to detect ALL critic
 | 5 | arc-02-03-literature-screen | LITERATURE_SCREEN | **GATE** | — | — | — |
 | 6 | arc-02-04-knowledge-extract | KNOWLEDGE_EXTRACT | — | — | — | — |
 | 7 | arc-03-01-synthesis | SYNTHESIS | — | — | — | — |
+| 7.5 | arc-03-03-novelty-gap-gate | NOVELTY_GAP_GATE | **GATE** | — | **YES** | Blocks non-novel gaps before hypothesis generation |
 | 8 | arc-03-02-hypothesis-gen | HYPOTHESIS_GEN | — | — | — | — |
 | 9 | arc-04-01-experiment-design | EXPERIMENT_DESIGN | **GATE** | — | — | — |
+| 9.5 | arc-04-04-reproducibility-design-gate | REPRODUCIBILITY_DESIGN_GATE | **GATE** | — | **YES** | Freeze reproducibility contract before coding |
 | 10 | arc-04-02-code-generation | CODE_GENERATION | — | — | — | Requires Stage 0 execution pass |
 | 11 | arc-04-03-resource-planning | RESOURCE_PLANNING | — | — | — | Requires Stage 0 execution pass |
 | 12 | arc-05-01-experiment-run | EXPERIMENT_RUN | — | — | — | **REQUIRES execution backend** |
 | 13 | arc-05-02-iterative-refine | ITERATIVE_REFINE | — | — | — | **REQUIRES execution backend** |
 | 14 | arc-06-01-result-analysis | RESULT_ANALYSIS | — | — | — | — |
 | 15 | arc-06-02-research-decision | RESEARCH_DECISION | — | — | — | — |
-| T | arc-07-00-template-resolve | TEMPLATE_RESOLVE | — | — | — | Resolves venue/journal template contract before writing/export |
+| 15.5 | arc-06-03-result-claim-gate | RESULT_CLAIM_GATE | **GATE** | — | **YES** | Freeze claim-scope contract before writing |
+| 15.7 | arc-07-00-template-resolve | TEMPLATE_RESOLVE | — | — | — | Resolves venue/journal template contract after claim gate |
 | 16 | arc-07-01-paper-outline | PAPER_OUTLINE | — | — | — | Requires resolved template manifest |
 | 17 | arc-07-02-paper-draft | PAPER_DRAFT | — | — | — | Requires resolved template manifest |
+| 17.5 | arc-07-05-writing-compliance-gate | WRITING_COMPLIANCE_GATE | **GATE** | — | **YES** | Structure/marker/anti-slop gate before peer review |
 | 18 | arc-07-03-peer-review | PEER_REVIEW | — | — | — | — |
+| 18.5 | arc-08-05-bibliography-quality-gate | BIBLIOGRAPHY_QUALITY_GATE | **GATE** | — | **YES** | Bibliography quality before review findings propagate |
 | 19 | arc-07-04-paper-revision | PAPER_REVISION | — | — | — | — |
 | 20 | arc-08-01-quality-gate | QUALITY_GATE | **GATE** | yes | **YES (before stage 22+)** | Must pass before export / citation verify / polish / late-stage gates |
+| 20.5 | arc-00-06-meta-optimizer | META_OPTIMIZER | — | yes | — | Distills reusable guidance from current run artifacts |
 | 21 | arc-08-02-knowledge-archive | KNOWLEDGE_ARCHIVE | — | yes | — | Per-run archive only |
-| M | arc-00-06-meta-optimizer | META_OPTIMIZER | — | yes | — | Distills reusable guidance from the current run's real artifacts |
-| 22 | arc-08-03-export-publish | EXPORT_PUBLISH | — | — | — | **REQUIRES LaTeX** and an approved Stage-20 quality gate |
+| 21.5 | arc-08-06-reproducibility-bundle-gate | REPRODUCIBILITY_BUNDLE_GATE | **GATE** | — | **YES** | Verify reproducibility bundle before export |
+| 22 | arc-08-03-export-publish | EXPORT_PUBLISH | — | — | — | **REQUIRES LaTeX** and approved Stage-20 quality gate |
 | 23 | arc-08-04-citation-verify | CITATION_VERIFY | — | — | — | — |
-| 24 | arc-09-01-paper-review-loop | PAPER_REVIEW_LOOP | — | yes | — | — |
+| 24 | arc-09-01-paper-review-loop | PAPER_REVIEW_LOOP | **BLOCKING** | — | **YES** | Codex MCP external review **REQUIRED** |
+| 24.5 | arc-09-03-academic-integrity-gate | ACADEMIC_INTEGRITY_GATE | **GATE** | — | **YES** | Integrity/anonymity/disclosure checks |
 | 25 | arc-09-02-paper-polish | PAPER_POLISH | — | — | — | — |
-| 26 | arc-10-01-claim-evidence-trace-gate | CLAIM_EVIDENCE_TRACE_GATE | **GATE** | — | — | Requires pre-gate `arc-10-04` and evidence-direction consistency |
-| 27 | arc-10-02-figure-quality-gate | FIGURE_QUALITY_GATE | **GATE** | — | — | Validates `stage-25/deliverables/charts/` against the polished package |
-| 28 | arc-10-03-submission-format-gate | SUBMISSION_FORMAT_GATE | **GATE** | — | — | **REQUIRES LaTeX compile pass** and intact numeric pre-gate evidence |
+| 26 | arc-10-01-claim-evidence-trace-gate | CLAIM_EVIDENCE_TRACE_GATE | **GATE** | — | **YES** | Requires pre-gate `arc-10-04` and evidence-direction consistency |
+| 27 | arc-10-04-numeric-truth-gate | NUMERIC_TRUTH_GATE | **pre-GATE** | — | **YES** | Pre-gate for stage 26 |
+| 27.5 | arc-10-02-figure-quality-gate | FIGURE_QUALITY_GATE | **GATE** | — | **YES** | Validates polished package |
+| 28 | arc-10-03-submission-format-gate | SUBMISSION_FORMAT_GATE | **GATE** | — | **YES** | **REQUIRES LaTeX compile pass** and intact numeric pre-gate evidence |
+| 28.5 | arc-10-05-final-acceptance-gate | FINAL_ACCEPTANCE_GATE | **GATE** | — | **YES** | Aggregate all critical gates for final acceptance |
 
 ---
 
@@ -218,12 +227,20 @@ These stages BLOCK the pipeline and cannot rollback — they require user interv
 | Stage 0 arc-00-04 | **N/A (BLOCKING)** — fix missing capabilities, then re-run pipeline |
 | Stage 4 arc-02-02 (hallucination) | **N/A (BLOCKING)** — unverifiable entries rejected, fetch more candidates |
 | Stage 5 arc-02-03 | Stage 4 arc-02-02 |
+| Stage 7.5 arc-03-03 | Stage 7 arc-03-01 |
 | Stage 9 arc-04-01 | Stage 8 arc-03-02 |
+| Stage 9.5 arc-04-04 | Stage 9 arc-04-01 |
+| Stage 15.5 arc-06-03 | Stage 15 arc-06-02 |
+| Stage 17.5 arc-07-05 | Stage 17 arc-07-02 |
+| Stage 18.5 arc-08-05 | Stage 17 arc-07-02 |
 | Stage 20 arc-08-01 | Stage 16 arc-07-01 |
+| Stage 21.5 arc-08-06 | Stage 20 arc-08-01 |
+| Stage 24.5 arc-09-03 | Stage 24 arc-09-01 |
 | Stage 26 arc-10-01 | Stage 19 arc-07-04 |
 | Stage 26 pre-gate arc-10-04 | Stage 19 arc-07-04 |
 | Stage 27 arc-10-02 | Stage 22 arc-08-03 (invalidate stages 23–25 and re-run them before returning to the remaining late-stage gates) |
 | Stage 28 arc-10-03 | Stage 22 arc-08-03 (invalidate stages 23–25 and re-run them before returning to the remaining late-stage gates) |
+| Stage 28.5 arc-10-05 | Stage 28 arc-10-03 |
 
 On rollback: version existing directories (`stage-04/` → `stage-04_v1/`), do not overwrite checkpoint. If rollback returns to stage 22 from stages 27 or 28, version and invalidate `stage-23/`, `stage-24/`, and `stage-25/` so they are re-executed against the refreshed export. The regenerated stage-22 package MUST differ by repaired inputs, corrected content, or refreshed package artifacts before stages 23–28 can be treated as meaningfully re-run; a no-op late-stage loop is not an acceptable resolution.
 
@@ -233,19 +250,21 @@ On rollback: version existing directories (`stage-04/` → `stage-04_v1/`), do n
 
 | Decision | Next Stage | Counts Against Cap |
 |----------|-----------|-------------------|
-| `proceed` | arc-07-01 | no |
+| `proceed` | arc-06-03 (result claim gate) → arc-07-00 (template) → arc-07-01 | no |
 | `refine` | arc-05-02 | yes |
 | `pivot` | arc-03-02 | yes |
 
 **MAX_DECISION_PIVOTS = 2**. On cap reached: force `proceed`, write `quality_warning.txt` to run root.
+
+On `proceed`: The pipeline MUST pass through Stage 15.5 (result-claim-gate) before template resolution and paper writing. This ensures claim-scope is frozen before any writing begins.
 
 ---
 
 ## Noncritical Stages
 
 - **Stage 20** (arc-08-01): may be treated as noncritical for logging/iteration purposes, but it MUST be approved before Stage 22 export or any later stage can claim final acceptance; `skip_noncritical=true` does not waive this prerequisite
+- **Stage 20.5** (arc-00-06): fail → continue with `skip_noncritical=true` (meta-optimizer is optional)
 - **Stage 21** (arc-08-02): fail → continue with `skip_noncritical=true`
-- **Stage 24** (arc-09-01): fail → continue (noncritical — downgrade or failure must be logged honestly in review artifacts, and any discovered downstream blocking concerns must remain visible rather than implied to be waived)
 
 ## Always Blocking Stages
 
@@ -253,11 +272,20 @@ These stages ALWAYS block the pipeline (no skip, no continue):
 
 - **Stage 0** (arc-00-04): fail → **ABORT** (E00_CRITICAL_MISSING — missing execution/LaTeX/network)
 - **Stage 4** (arc-02-02): hallucination → **BLOCK** (E04_HALLUCINATION_DETECTED — unverifiable literature)
+- **Stage 7.5** (arc-03-03): fail → **BLOCK** (E07B — non-novel gaps detected; **E07B_CODEX_MCP_REQUIRED** — Codex MCP unavailable)
+- **Stage 9.5** (arc-04-04): fail → **BLOCK** (E09B — reproducibility design contract incomplete)
+- **Stage 15.5** (arc-06-03): fail → **BLOCK** (E15B — unsupported claims would be allowed into writing)
+- **Stage 17.5** (arc-07-05): fail → **BLOCK** (E17B — structure/marker issues)
+- **Stage 18.5** (arc-08-05): fail → **BLOCK** (E18B — bibliography quality)
+- **Stage 21.5** (arc-08-06): fail → **BLOCK** (E21B — reproducibility bundle incomplete)
 - **Stage 23** (arc-08-04): fail → **blocks** (E23 — citation verification found hallucinated or unverifiable citations; `E23_CITATION_THRESHOLD` blocks on unjustifiably insufficient citations)
+- **Stage 24** (arc-09-01): fail → **BLOCK** (**E24_CODEX_MCP_REQUIRED** — external adversarial review requires Codex MCP; no degraded fallback permitted)
+- **Stage 24.5** (arc-09-03): fail → **BLOCK** (E24B — integrity/disclosure failure)
 - **Stage 25** (arc-09-02): fail → **blocks** (E25 — polish, citation thresholds/stability, reproducibility, or package regeneration failure)
 - **Stage 26** (arc-10-01): fail → **blocks** (E26 — unsupported, untraceable, or direction-conflicted claims)
 - **Stage 27** (arc-10-02): fail → **blocks** (E27 — figure quality, traceability, or authenticity failure against the polished package)
 - **Stage 28** (arc-10-03): fail → **blocks** (E28 — numeric-truth, compile, format, package, citation, figure-authenticity, or reproducibility noncompliance)
+- **Stage 28.5** (arc-10-05): fail → **BLOCK** (E28B — final acceptance conditions not met)
 
 ---
 
@@ -265,7 +293,7 @@ These stages ALWAYS block the pipeline (no skip, no continue):
 
 | Stage | Max Retries |
 |-------|------------|
-| 0, 4 (hallucination), 5, 9, 20, 26 | 0 |
+| 0, 4 (hallucination), 5, 9, 9.5, 15.5, 17.5, 18.5, 20, 21.5, 24.5, 26, 28.5 | 0 |
 | 4 (network failure), 10, 12, 13, 28 | 2 |
 | 24, 25, 27 | 1 |
 | All others | 1 |
@@ -276,10 +304,60 @@ These stages ALWAYS block the pipeline (no skip, no continue):
 
 Each stage emits its code on failure. Orchestrator maps: retryable → retry; non-retryable → fail or rollback.
 
-**Stage 24 (Paper Review Loop, noncritical):**
+**Stage 7.5 (Novelty Gap Gate):**
+- `E07B`: Novelty gap report missing, malformed, or indicates a blocked core gap
+- `E07B_GAP_NOT_NOVEL`: At least one core gap is already addressed by prior work
+- `E07B_CODEX_MCP_REQUIRED`: Codex MCP adversarial review is required but unavailable — pipeline BLOCKED
+
+**Stage 9.5 (Reproducibility Design Gate):**
+- `E09B`: Reproducibility design report missing required fields
+- `E09B_SEED_POLICY_MISSING`: Seed policy missing or `num_seeds < 3` without justification
+- `E09B_ENV_LOCK_MISSING`: No dependency/environment lock artifact declared
+- `E09B_STATS_METHOD_MISSING`: Statistical comparison method missing
+
+**Stage 15.5 (Result Claim Gate):**
+- `E15B`: Claim-scope report missing, malformed, or not fully classified
+- `E15B_UNSUPPORTED_CORE_CLAIM`: A core contribution claim is unsupported but not marked `disallowed`
+- `E15B_MISSING_CAVEAT`: An `allowed_with_caveat` claim lacks explicit wording constraints
+
+**Stage 17.5 (Writing Compliance Gate):**
+- `E17B`: Writing compliance report missing or blocking checks failed
+- `E17B_MISSING_SECTION`: One or more required sections are missing
+- `E17B_LIMITATIONS_MISSING`: Limitations section missing or too vague
+- `E17B_MARKERS_REMAIN`: `TODO`, `FIXME`, `XXX`, or `[VERIFY]` markers remain
+- `E17B_AI_PATTERNS`: Forbidden inflated or filler writing patterns remain
+
+**Stage 18.5 (Bibliography Quality Gate):**
+- `E18B`: Bibliography quality report missing or blocking checks failed
+- `E18B_MISSING_ENTRIES`: One or more in-text citation keys have no bibliography entry
+- `E18B_UNRESOLVED_ENTRY`: An unresolved verification marker remains in the bibliography
+- `E18B_DUPLICATE_KEY_CONFLICT`: Duplicate citation key conflict detected
+- `E18B_MISSING_FIELDS`: Required metadata fields missing from cited entries
+
+**Stage 21.5 (Reproducibility Bundle Gate):**
+- `E21B`: Reproducibility bundle report missing or blocking checks failed
+- `E21B_ENTRYPOINT_MISSING`: No runnable reproduction entrypoint found
+- `E21B_ENV_LOCK_MISSING`: No dependency/environment lock artifact found
+- `E21B_RUNTIME_RECORD_MISSING`: Runtime environment recording missing
+- `E21B_CLAIM_LINK_MISSING`: One or more core claims cannot be traced to bundled artifacts
+
+**Stage 24.5 (Academic Integrity Gate):**
+- `E24B`: Academic integrity report missing or blocking checks failed
+- `E24B_ANONYMITY_LEAK`: Anonymous submission leaks identifying information
+- `E24B_DISCLOSURE_MISSING`: Required disclosure field missing or unresolved
+- `E24B_SELF_CITATION_POLICY`: Self-citation exceeds configured policy or is undisclosed
+- `E24B_MARKERS_REMAIN`: Integrity/disclosure markers remain unresolved
+
+**Stage 28.5 (Final Acceptance Gate):**
+- `E28B`: Final acceptance report missing or blocking checks failed
+- `E28B_PACKAGE_INCOMPLETE`: Final paper package is incomplete
+- `E28B_CRITICAL_GATE_FAILED`: One or more critical upstream gates failed
+- `E28B_CITATION_VERIFY_MISSING`: Citation verification output missing or failed
+- `E28B_INTEGRITY_MISSING`: Academic integrity output missing or failed
+
+**Stage 24 (Paper Review Loop — CRITICAL, BLOCKING):**
 - `E24`: Stage-24 review loop state could not be written or resumed cleanly
-- `E24_REVIEWER_UNAVAILABLE`: No independent reviewer is available; continue only with explicit, honest `review_mode: degraded_local` logging, with downstream blockers preserved for later critical gates
-- `E24_CODEX_MCP_UNAVAILABLE`: Intended Codex/GPT-5.4 MCP reviewer path was unavailable; continue only with explicit degraded-local logging
+- `E24_CODEX_MCP_REQUIRED`: **Codex MCP external review is REQUIRED but unavailable** — pipeline BLOCKED, no fallback permitted
 
 **Entry-mode validation:**
 - `E00_INVALID_MODE`: `mode` is neither `idea_start` nor `existing_project_improvement`

@@ -1,20 +1,23 @@
 ---
 name: arc-09-01-paper-review-loop
-description: Stage 24 — External adversarial multi-round paper review loop. Uses an independent expert reviewer to score the stage-22 package and produce remediation handoff guidance until threshold or max rounds.
+description: Stage 24 (CRITICAL — BLOCKING) — External adversarial multi-round paper review loop via mandatory Codex MCP. BLOCKS pipeline if independent reviewer unavailable. No degraded fallback permitted.
 metadata:
   category: pipeline-stage
-  trigger-keywords: "paper review,external review,adversarial review,stage 24"
+  trigger-keywords: "paper review,external review,adversarial review,stage 24,codex mcp,critical"
   applicable-stages: "24"
   priority: "1"
-  version: "4.2"
+  version: "4.3"
   author: researchclaw
+  blocking: true
+  requires_codex_mcp: true
+  critical: true
 ---
 
 ## Purpose
 
 Run an external adversarial reviewer against the canonical stage-22 review package. The reviewer scores 1–10, lists weaknesses, and the loop records prioritized remediation guidance for the downstream polish/regeneration path. This breaks the self-review trap — the agent that wrote the paper is NOT the one judging it.
 
-**This is a noncritical stage** — failures are logged honestly but do not abort the pipeline.
+**This is a CRITICAL stage** — Codex MCP external review is **MANDATORY**. The pipeline **BLOCKS** if the independent reviewer is unavailable. No degraded-local fallback is permitted.
 
 ---
 
@@ -25,10 +28,12 @@ Run an external adversarial reviewer against the canonical stage-22 review packa
 - `status: "completed"` when `round >= MAX_ROUNDS` (exhausted iterations)
 - `verdict: "ready"` | `"almost"` | `"not ready"`
 - `score: N/10`
-- `review_mode: "independent" | "degraded_local"`
-- `warning_flags` records downgrade conditions such as reviewer non-independence
-- `downstream_blockers` records issues that later stages MUST still respect even though Stage 24 itself is noncritical
+- `review_mode: "independent"` ONLY — degraded local review is **NOT ACCEPTABLE**
+- `reviewer_provider: "codex_mcp"` REQUIRED — no other provider satisfies the independence requirement
+- `blocking_concerns` records issues discovered during review that must be resolved before proceeding
 - Review notes must explicitly flag citation-floor, recent-reference-ratio, figure-authenticity, and claim-traceability weaknesses when present
+
+**Hard constraint**: If Codex MCP is unavailable, this stage **FAILS** with `E24_CODEX_MCP_REQUIRED`. No bypass, no degradation.
 
 `AUTO_REVIEW.md` MUST contain all round entries with raw reviewer responses preserved verbatim.
 
@@ -98,12 +103,12 @@ Path convention for stage 24 artifacts:
 
 ## Reviewer Identity Contract
 
-The intended reviewer path is **Codex/GPT-5.4 via MCP**.
+The **ONLY acceptable reviewer** is **Codex/GPT-5.4 via MCP**.
 
-1. The preferred independent reviewer is a Codex-served GPT-5.4 reviewer reachable through MCP
-2. If that path is unavailable, set `review_mode: degraded_local`, add `warning_flags: ["codex_mcp_unavailable"]`, and preserve all discovered blocking concerns in `downstream_blockers`
-3. Degraded-local review may inform downstream fixes, but it must never be misrepresented as independent review
-4. Stage 24 remains noncritical, but later critical gates must still respect every blocking concern recorded here
+1. The independent reviewer MUST be a Codex-served GPT-5.4 reviewer reachable through MCP
+2. **NO FALLBACK**: If Codex MCP is unavailable, the stage **FAILS** with `E24_CODEX_MCP_REQUIRED`
+3. Local review (Claude, GPT-4, etc.) is **NOT PERMITTED** — it violates the independence requirement
+4. This is a **critical blocking stage** — pipeline cannot proceed to late-stage gates without genuine external review
 
 ## Difficulty Mode
 
@@ -190,18 +195,46 @@ Build the nightmare review package with:
 
 ### Step 3 — Select Reviewer and Review
 
-Select a reviewer using this priority:
-1. Codex/GPT-5.4 reviewer via MCP (`review_mode: independent`)
-2. If the intended Codex MCP path is unavailable, set `review_mode: degraded_local`, add `warning_flags: ["codex_mcp_unavailable"]`, and continue with explicit warning
+**Codex MCP is REQUIRED.** Attempt to initialize the Codex/GPT-5.4 reviewer via MCP.
 
-A degraded-local review can inform downstream polish, but it does not erase any blocking issue discovered in citation verification, numeric truth, claim traceability, figure authenticity, or submission-format checks. Any such concern should also be recorded in `downstream_blockers` so later stages must respect it.
+1. **Verify Codex MCP availability**:
+   - Check MCP server status
+   - Verify GPT-5.4 model access
+   - Confirm independence constraints (different session/context from executor)
+
+2. **If Codex MCP is available**:
+   - Set `review_mode: "independent"`
+   - Set `reviewer_provider: "codex_mcp"`
+   - Set `reviewer_model: "gpt-5.4"`
+   - Proceed with review
+
+3. **If Codex MCP is UNAVAILABLE**:
+   - **FAIL immediately** with `E24_CODEX_MCP_REQUIRED`
+   - Write `CODEX_MCP_ERROR.md` with diagnostics:
+     ```markdown
+     # Codex MCP Unavailable
+     
+     ## Error
+     External adversarial review requires Codex MCP with GPT-5.4.
+     
+     ## How to Fix
+     1. Ensure Codex MCP server is running
+     2. Verify GPT-5.4 model access in your Codex configuration
+     3. Check network connectivity to MCP endpoint
+     4. Retry when Codex MCP is available
+     
+     ## Why This Matters
+     The pipeline requires genuine independent review to prevent self-review bias.
+     Local review violates the adversarial guarantee and is not permitted.
+     ```
+   - **DO NOT proceed** with degraded review
+   - **BLOCK pipeline** until Codex MCP is available
 
 Record in `artifacts/<run_id>/stage-24/review_state.json`:
-- `reviewer_identity`
-- `reviewer_model`
-- `reviewer_provider`
-- `review_mode`: `independent` | `degraded_local`
-- `warning_flags`: empty when independent review is used; otherwise include the downgrade reason
+- `reviewer_identity`: "external_adversarial_reviewer"
+- `reviewer_model`: "gpt-5.4"
+- `reviewer_provider`: "codex_mcp"
+- `review_mode`: "independent" (only valid value)
 
 **Prompt to reviewer:**
 
@@ -354,25 +387,30 @@ Current: 0.6 (moderate trust, minor issues remain)
 |-------|---------------|
 | `AUTO_REVIEW.md` exists | `artifacts/<run_id>/stage-24/AUTO_REVIEW.md` contains one entry per completed round |
 | `review_state.json` valid | `artifacts/<run_id>/stage-24/review_state.json` is valid JSON with required fields |
-| Downgrade recorded correctly | If independent review is unavailable, `review_mode == degraded_local` and `warning_flags` is non-empty |
-| Downstream blockers preserved | Blocking concerns discovered during review are recorded in `downstream_blockers` rather than implied to be waived |
+| **Codex MCP used** | `reviewer_provider == "codex_mcp"` AND `review_mode == "independent"` |
+| No degraded mode | `review_mode != "degraded_local"` — degraded review is **NOT ACCEPTABLE** |
+| Downstream blockers preserved | Blocking concerns discovered during review are recorded in `blocking_concerns` |
 | Raw reviewer response preserved | Each round entry contains verbatim response |
 | Remediation handoff recorded | Each round records concrete downstream remediation items without mutating the canonical stage-22 package |
 | Loop terminates | At `MAX_ROUNDS` or when threshold met |
 | Reviewer memory maintained | `artifacts/<run_id>/stage-24/REVIEWER_MEMORY.md` is updated each round (nightmare mode) |
 
-**Failure**: Stage fails only on unrecoverable state (file write failure, corrupted state).
+**Failure**: 
+- `E24_CODEX_MCP_REQUIRED` if Codex MCP unavailable
+- `E24` on unrecoverable state (file write failure, corrupted state)
+- `E24_INDEPENDENCE_VIOLATION` if reviewer detected as non-independent
 
 ---
 
 ## Error Codes
 
-| Code | Trigger |
-|------|---------|
-| `E24` | Stage-24 review loop state is corrupted or could not be written |
-| `E24_ROUND_FAIL` | A review round completed without any measurable improvement |
-| `E24_REVIEWER_UNAVAILABLE` | No independent reviewer is available; record `review_mode: degraded_local` and log the downgrade honestly |
-| `E24_CODEX_MCP_UNAVAILABLE` | The intended Codex/GPT-5.4 MCP reviewer path was unavailable; continue only with explicit degraded-local logging |
+| Code | Trigger | Retryable |
+|------|---------|-----------|
+| `E24` | Stage-24 review loop state is corrupted or could not be written | Yes (1) |
+| `E24_ROUND_FAIL` | A review round completed without any measurable improvement | Yes (2) |
+| `E24_CODEX_MCP_REQUIRED` | **Codex MCP is required but unavailable** — pipeline BLOCKED | **No** |
+| `E24_REVIEWER_REJECTED` | Reviewer returned "not ready" verdict below threshold after max rounds | No |
+| `E24_INDEPENDENCE_VIOLATION` | Reviewer detected as non-independent (same session/context) | **No** |
 
 ---
 
@@ -384,4 +422,6 @@ Max retries: **1** — retry only on state file write failures.
 ## State Transition
 `pending` → `running` → `done` | `failed`
 
-Note: Even on `failed`, the paper may continue to `arc-09-02-paper-polish` for a final critical cleanup pass.
+**CRITICAL**: This stage is **BLOCKING**. On `failed` (especially `E24_CODEX_MCP_REQUIRED`), the pipeline **ABORTS**.
+
+There is no "continue with degraded review" path. The paper cannot proceed to `arc-09-02-paper-polish` or any late-stage gates without genuine external review.
