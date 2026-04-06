@@ -21,8 +21,10 @@ Transform the experimental results into a structured paper outline. The outline 
 - Abstract is 180–220 words with PMR+ structure (Problem, Method, Results, significance)
 - Title is ≤14 words and defines a short method name (2–5 characters)
 - All major sections are present: Introduction, Related Work, Method, Experiments, Results, Discussion, Conclusion, Broader Impact
+- Outline metadata records the resolved venue/journal target from `template_manifest.json`
 - Each hypothesis (H1, H2, ...) maps to a dedicated paragraph in the Experiments section
 - Limitations are explicitly addressed in a dedicated subsection
+- Venue-conditional sections (for example Broader Impact / Ethics Statement / anonymous author handling) follow `template_manifest.json`
 
 ---
 
@@ -30,6 +32,7 @@ Transform the experimental results into a structured paper outline. The outline 
 `artifacts/<run_id>/stage-14/analysis.md`
 `artifacts/<run_id>/stage-15/decision.md`
 `artifacts/<run_id>/stage-14/experiment_summary.json`
+`artifacts/<run_id>/template/template_manifest.json`
 
 ---
 
@@ -42,6 +45,10 @@ Transform the experimental results into a structured paper outline. The outline 
 ## Metadata
 - Title: [≤14 words, defines short method name]
 - Method name: [2-5 character identifier]
+- Publication type: [conference|journal]
+- Target venue: [e.g., NeurIPS 2025 / Pattern Recognition]
+- Submission mode: [anonymous|camera_ready|preprint]
+- Main-body page policy: [e.g., 9 pages / journal-flex]
 
 ## Abstract (PMR+, 180-220 words)
 [Problem sentence] [Method sentence] [Results sentence] [Significance sentence]
@@ -98,8 +105,8 @@ Max retries: **1** — retry if abstract word count is wrong.
 
 ## Procedure
 
-### Step 1 — Read Analysis and Decision
-Read `analysis.md`, `decision.md`, and `experiment_summary.json`.
+### Step 1 — Read Analysis, Decision, and Template Contract
+Read `analysis.md`, `decision.md`, `experiment_summary.json`, and `template_manifest.json`.
 
 ### Step 2 — Draft Abstract
 Write the abstract following PMR+ structure:
@@ -119,9 +126,11 @@ From `analysis.md`, note which hypothesis each experimental result supports. Eac
 
 ### Step 5 — Build Full Outline
 Create `outline.md` following the Outputs template. Assign word count targets to each section. Ensure:
+- The outline metadata copies the resolved publication target from `template_manifest.json`
 - Every H1, H2, ... from `hypotheses.md` appears as evidence in the Experiments section
 - A Limitations subsection exists (even if brief — reviewers expect this)
-- Broader Impact / Ethics Statement is present (required for many venues)
+- Broader Impact / Ethics Statement is present only when required by the resolved venue/journal rules
+- Journal targets may replace strict conference page budgeting with section depth targets while preserving the same evidence mapping discipline
 
 ### Step 6 — Validate
 Count abstract words. Count title words. Verify all sections present. Fail → `E16`.

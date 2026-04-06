@@ -13,6 +13,8 @@ metadata:
 ## Purpose
 Capture the run's execution history and preserve reproducibility context for later inspection. The archive should preserve the same final experiment code snapshot used by the export package, but it does not own the canonical `reproducibility_report.json` written by Stage 22. This stage does not affect paper quality — it is purely archival.
 
+This stage is **per-run only**. Any reusable experience distillation belongs to `arc-00-06-meta-optimizer`, not to this archival stage.
+
 ---
 
 ## Quality Contract

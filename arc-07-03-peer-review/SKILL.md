@@ -13,6 +13,8 @@ metadata:
 ## Purpose
 Stress-test the paper draft by generating reviews from distinct reviewer personas. Reviews must be evidence-based and identify specific weaknesses.
 
+This stage is a lightweight internal drafting stress-test only. It does **not** replace the independent adversarial review in Stage 24 (`arc-09-01-paper-review-loop`), which is the authoritative external review path using Codex/GPT-5.4 MCP in nightmare mode.
+
 ---
 
 ## Quality Contract

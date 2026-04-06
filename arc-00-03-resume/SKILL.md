@@ -13,10 +13,16 @@ metadata:
 ## Purpose
 Continue execution from the last checkpoint without re-running completed stages.
 
+Resume must preserve the same hard output invariants as a fresh run: no bypass of blocking environment checks, no acceptance of hallucinated or insufficient citations, no silent downgrade of figure authenticity requirements, and no loss of reproducibility semantics during late-stage continuation.
+
 ---
 
 ## Inputs
 - `run_id` (required)
+- `target_venue` (optional, inherit from original unless explicitly changed before template resolution)
+- `template_version` (optional, inherit from original unless explicitly changed before template resolution)
+- `publication_type` (optional, inherit from original)
+- `submission_mode` (optional, inherit from original)
 - `auto_approve_gates` (optional, inherit from original)
 - `skip_noncritical` (optional, inherit from original)
 
@@ -39,6 +45,7 @@ Read `pipeline_state.json` and `checkpoint.json`:
 - `checkpoint.json` must exist
 - Stage history must confirm claimed completed stages actually produced their outputs
 - Resume point must be unambiguous
+- If resuming after late-stage export, citation / figure / reproducibility artifacts must still satisfy the expected invariants for the claimed completed stages
 
 ---
 
@@ -47,6 +54,7 @@ Read `pipeline_state.json` and `checkpoint.json`:
 - Append to `stage_history.jsonl`, never truncate
 - Do not count resumed run as new pivot attempt
 - Rollback/routing rules identical to `arc-00-01`
+- Resume must not skip or waive citation-threshold, figure-authenticity, or reproducibility checks that were required before interruption
 
 ---
 
@@ -92,7 +100,13 @@ Route by `pipeline_state.status`:
 ### Step 4 — Verify Stage History Integrity
 Check `stage_history.jsonl` confirms claimed completed stages actually produced their outputs:
 - For each completed stage, verify its output directory exists and is non-empty
-- If any output is missing → fail with `E_RESUME_INVALID`
+- If Stage 23 is claimed complete, verify citation verification artifacts still exist, were not invalidated, and do not report `hallucinated > 0` or `unverifiable > 0`
+- If Stage 25 is claimed complete, verify the polished package still includes reproducibility metadata and the expected bibliography/package artifacts
+- If Stage 24 is claimed complete, verify `stage-24/review_state.json` and `stage-24/AUTO_REVIEW.md` still exist
+- If Stage 26 progress is claimed, verify `stage-26-pre/numeric_truth_report.json` exists; if Stage 26 is claimed complete, verify that report still reflects `numeric_truth_gate_pass == true`
+- If Stage 27 is claimed complete, verify figure-quality artifacts still exist and still correspond to the stage-25 polished package
+- If Stage 28 is claimed complete, verify `stage-28/submission_format_report.json` still exists and still reflects a passing final gate
+- If any required late-stage artifact is missing or stale → fail with `E_RESUME_03`
 
 ### Step 5 — Determine Resume Point
 Let `resume_stage = checkpoint.last_completed_stage + 1`.
@@ -103,6 +117,7 @@ Do NOT skip to a later stage — resume from exactly after the last successful c
 - Append to `stage_history.jsonl` only (never truncate)
 - Resume run does NOT count as a new pivot attempt
 - Rollback/routing rules are identical to fresh start
+- Preserve inherited venue/template configuration and all late-stage authenticity/citation/figure/reproducibility invariants
 
 ### Step 7 — Execute Resume
 Transition `pipeline_state.status` to `running` and hand off to the resumed stage skill.

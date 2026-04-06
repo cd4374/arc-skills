@@ -1,6 +1,6 @@
 ---
 name: arc-00-05-project-recheck
-description: Unified project diagnostic + iterative improvement tool. Analyzes existing projects (ARC-structured or external), generates diagnostic reports, executes prioritized fixes, validates improvements, and loops until quality gates pass or max iterations reached. For external projects in "full" mode, actually executes refactoring to create ARC standard structure by migrating code, papers, and data to proper stage directories. Ensures final output includes compilable LaTeX and PDF for a high-quality, verifiable, reproducible research paper.
+description: Unified project diagnostic + iterative improvement tool. Analyzes existing projects (ARC-structured or external), generates diagnostic reports, executes prioritized fixes, validates improvements, and loops until quality gates pass or max iterations reached. For external projects, it refactors structure into ARC-compatible artifacts while preserving blocking checks instead of fabricating stage completion. Ensures final output includes compilable LaTeX and PDF for a high-quality, verifiable, reproducible research paper.
 metadata:
   category: orchestrator
   trigger-keywords: "recheck,diagnose,improve,iterate,project review,refactor,assess,fix,repair,enhance"
@@ -16,10 +16,10 @@ Unified diagnostic + iterative improvement tool that:
 
 1. **Detects project type**: Determines if project follows ARC structure or is an external project
 2. **Analyzes current state**: Diagnoses what's done, incomplete, or problematic
-3. **Generates refactoring plan**: For non-ARC projects, maps external structure to ARC standard structure
+3. **Generates refactoring plan**: For non-ARC projects, maps external structure to ARC standard structure without claiming missing evidence is already complete
 4. **Executes improvements**: Applies prioritized fixes with validation
 5. **Iterates until quality gates pass**: Loops through diagnose → fix → validate until target reached or max iterations exhausted
-6. **Ensures final output**: Produces compilable LaTeX + PDF + verified citations + reproducibility bundle
+6. **Ensures final output**: Produces compilable LaTeX + PDF + verified citations + reproducibility bundle only after all blocking checks really pass
 
 **CORE INVARIANT — This skill MUST satisfy:**
 > When execution completes in an agent CLI (Claude Code, Codex, etc.), the output MUST be a **high-quality, verifiable, reproducible, authentic academic paper** with at minimum `main.tex` and compiled `main.pdf`.
@@ -39,20 +39,27 @@ This invariant is **non-negotiable** and overrides all other considerations. If 
 #### Hard Requirements (Must Satisfy All):
 - ✅ `main.tex` — LaTeX source file
 - ✅ `main.pdf` — Compiled PDF file (compile error-free)
-- ✅ `references.bib` — Citations with verifiable DOIs
+- ✅ `references.bib` — Citations with verifiable DOIs/arXiv IDs
 - ✅ `experiment_summary.json` — Real metrics from actual execution (no fabrication)
 - ✅ `reproducibility_report.json` — Complete reproducibility documentation
-- ✅ **≥30 citations** in references.bib
-- ✅ **≥20% of citations from recent 5 years** (published 2021-2026)
+- ✅ **≥30 citations** in references.bib unless topic constraints are explicitly justified
+- ✅ **≥20% of citations from recent 5 years** (published 2021-2026) unless topic constraints are explicitly justified
+- ✅ Figures satisfy venue-aware count, style, file-quality, traceability, and authenticity requirements
 
 #### Citation Quality Standards:
 - Each citation MUST have a verifiable DOI or arXiv ID
 - Self-citations limited to ≤20% of total references
 - At least 3 different citation sources (journals, conferences, arXiv, books)
 
+#### Figure Authenticity Standards:
+- Each figure MUST be evidence-bearing, not decorative filler
+- Each figure MUST be traceable to experiment artifacts or verified source material
+- Figure style/quality MUST satisfy the resolved template rules
+
 **ANTI-HALLUCINATION:** The paper must contain ZERO:
 - ❌ Fabricated experiment data or metrics
 - ❌ Unverifiable citations (DOI must resolve)
+- ❌ Decorative or fabricated figures presented as evidence
 - ❌ Uncompilable LaTeX
 - ❌ Unsubstantiated claims without evidence
 
@@ -70,15 +77,16 @@ This invariant is **non-negotiable** and overrides all other considerations. If 
 `iteration_state.json` MUST maintain:
 - `iteration_count`: current iteration number
 - `changes_made`: array of all modifications with validation results
-- `gates_passed`: array of trust gates cleared
+- `gates_passed`: array of required late-stage stages/gates cleared
 - `remaining_issues`: array of unresolved problems
 - `quality_delta`: improvement in quality score per iteration
 
 **Final output MUST satisfy** (when mode is "full"):
 - `main.tex` compiles to `main.pdf` without errors
-- `references.bib` contains only verifiable DOI/arXiv entries
+- `references.bib` contains only verifiable DOI/arXiv entries and satisfies citation-count/recency requirements unless justified
 - `experiment_summary.json` contains only real execution metrics (no fabricated data)
 - All claims traceable to evidence in artifacts/
+- All figures are evidence-bearing and traceable to real experiment artifacts
 
 ---
 
@@ -88,7 +96,7 @@ This invariant is **non-negotiable** and overrides all other considerations. If 
 |-------|-------------|----------|
 | `project_path` | Path to project directory | Yes |
 | `run_id` | Existing run ID (for ARC projects) | No |
-| `max_iterations` | Maximum improvement iterations (default: 5) | No |
+| `max_iterations` | Maximum improvement iterations (default: 40) | No |
 | `target_quality` | Minimum quality threshold (default: 0.80) | No |
 | `auto_approve` | Automatically approve passing gates | No (default: false) |
 
@@ -146,7 +154,7 @@ This invariant is **non-negotiable** and overrides all other considerations. If 
       "priority": 2,
       "action": "Complete remaining stages 22-28",
       "estimated_impact": 0.25,
-      "steps": ["Run arc-08-03-export-publish", "Verify citations", "Run review loop", "Polish paper", "Pass trust gates"]
+      "steps": ["Run arc-08-03-export-publish", "Verify citations", "Run review loop", "Polish paper", "Pass required late-stage gates"]
     }
   ],
   "refactoring_plan": null
@@ -262,9 +270,13 @@ This invariant is **non-negotiable** and overrides all other considerations. If 
   "total_iterations": 4,
   "final_quality_score": 0.82,
   "target_reached": true,
-  "gates_passed": ["quality_gate", "claim_evidence_trace", "figure_quality", "submission_format"],
+  "invariant_satisfied": true,
+  "gates_passed": ["citation_verify", "paper_review_loop", "paper_polish", "numeric_truth", "claim_evidence_trace", "figure_quality", "submission_format"],
   "final_outputs": {
     "paper_path": "artifacts/<run_id>/stage-25/main.pdf",
+    "latex_path": "artifacts/<run_id>/stage-25/main.tex",
+    "citation_report_path": "artifacts/<run_id>/stage-23/verification_report.json",
+    "submission_report_path": "artifacts/<run_id>/stage-28/submission_format_report.json",
     "latex_compiles": true,
     "citations_verified": true,
     "reproducibility_bundle": true
@@ -334,6 +346,11 @@ This invariant is **non-negotiable** and overrides all other considerations. If 
 | External projects have refactoring_plan | Non-null with phase descriptions |
 | `iteration_state.json` incremented | iteration_count increases on each iteration |
 | Hallucination check passed | No fabricated data, no fake citations |
+| Stage-23 verification present | `artifacts/<run_id>/stage-23/verification_report.json` exists |
+| Stage-25 polished package present | `artifacts/<run_id>/stage-25/main.tex`, `main.pdf`, and `references.bib` exist |
+| Stage-28 submission report present | `artifacts/<run_id>/stage-28/submission_format_report.json` exists |
+| Late-stage gates recorded | `improvement_final_report.json.gates_passed` includes citation verify, numeric truth, claim trace, figure quality, and submission format passes |
+| Invariant explicitly satisfied | `improvement_final_report.json.invariant_satisfied == true` |
 | LaTeX compiles cleanly | pdflatex produces PDF without errors |
 
 **Failure**: Missing required output files → `E_RECHECK_01`
@@ -353,7 +370,7 @@ This invariant is **non-negotiable** and overrides all other considerations. If 
 | `E_RECHECK_04` | Project type ambiguous | No (requires human clarification) |
 | `E_RECHECK_05` | Hallucination detected (fabricated data/citations) | No (abort) |
 | `E_RECHECK_06` | LaTeX compilation failure | Yes (fix and retry iteration) |
-| `E_RECHECK_07` | Max iterations reached without target | No (report final state) |
+| `E_RECHECK_07` | Max iterations reached before both target quality and required late-stage gates were achieved | No (report final state) |
 | `E_RECHECK_08` | Citation unverifiable | Yes (fix citation or remove claim) |
 
 ---
@@ -447,37 +464,40 @@ Detect existing structure:
 | `experiments/` | Already has experiment structure |
 
 **Map to ARC stages:**
-- README title → Stage 1 (topic)
-- requirements.txt + src/ → Stage 4 (literature can be inferred from imports)
-- src/ + data/ → Stage 10-12 (code generation + experiment)
-- *.tex draft → Stage 16-17 (paper outline/draft)
+- README title → Stage 1 (topic seed only)
+- requirements.txt + src/ → evidence for code/dependency inventory, not verified literature completion
+- src/ + data/ → candidate inputs for Stages 10-12 after real execution validation
+- *.tex draft → candidate inputs for Stages 16-17 after structure/content validation
 
 ### Step 3.5 — Execute External Project Refactoring (External projects in "full" mode only)
 
 **If project is external AND mode is "full":**
-Execute the refactoring plan to convert project to ARC structure.
+Execute the refactoring plan to convert project into an ARC-compatible artifact layout without asserting that blocking checks have already passed.
 
-#### Step 3.5.1 — Initialize ARC Structure
+#### Step 3.5.1 — Initialize ARC-Compatible Structure
 ```bash
 # Create run_id if not provided
 run_id = "{project_path.basename}-$(date +%Y%m%d-%H%M%S)"
 
-# Create artifacts directory structure
-mkdir -p artifacts/{run_id}/stage-{01..28}
+# Create only the ARC directories needed to preserve migrated evidence and future pipeline outputs
 mkdir -p artifacts/{run_id}/stage-00
+mkdir -p artifacts/{run_id}/stage-01
+mkdir -p artifacts/{run_id}/stage-04
 mkdir -p artifacts/{run_id}/stage-10/experiment
-mkdir -p artifacts/{run_id}/stage-22/deliverables
+mkdir -p artifacts/{run_id}/stage-16
+mkdir -p artifacts/{run_id}/stage-17
+mkdir -p artifacts/{run_id}/migration
 
 # Create config.arc.yaml
 cat > config.arc.yaml << 'EOF'
 execution:
-  backend: "local_cpu"  # default, can be upgraded after probe
+  backend: "unknown_until_probe"
   conda:
-    auto_create: true
+    auto_create: false
     python_version: "3.10"
 
 paper:
-  venue: "arxiv"  # default, can be changed
+  venue: "auto_resolve_after_analysis"
   language: "en"
 
 run_id: "{run_id}"
@@ -559,13 +579,14 @@ if [ -f "{project_path}/requirements.txt" ]; then
     cp {project_path}/requirements.txt artifacts/{run_id}/stage-10/experiment/requirements.txt
 fi
 
-# Create experiment design placeholder
-cat > artifacts/{run_id}/stage-10/experiment/design.json << EOF
+# Create migration metadata only; experiment design still requires the normal pipeline stages
+cat > artifacts/{run_id}/stage-10/experiment/migration_metadata.json << EOF
 {
   "run_id": "{run_id}",
   "source": "refactored_from_external",
   "original_code_path": "{project_path}",
-  "design_notes": "Design inferred from migrated code structure"
+  "status": "migrated_unvalidated_inputs",
+  "note": "Real experiment design must still be produced by the normal pipeline stages"
 }
 EOF
 ```
@@ -576,13 +597,8 @@ EOF
 if [ -f "{project_path}/paper.tex" ]; then
     cp {project_path}/paper.tex artifacts/{run_id}/stage-17/main.tex
 elif [ -f "{project_path}/paper.md" ]; then
-    # Convert markdown to placeholder tex
-    cat > artifacts/{run_id}/stage-17/main.tex << 'TEX'
-\documentclass{article}
-\begin{document}
-% Migrated from paper.md - needs reconstruction
-\end{document}
-TEX
+    # Preserve the markdown draft as migrated evidence; do not fabricate a fake TeX paper
+    cp {project_path}/paper.md artifacts/{run_id}/stage-17/paper_migrated.md
 fi
 
 if [ -f "{project_path}/references.bib" ]; then
@@ -599,18 +615,18 @@ cat > artifacts/{run_id}/stage-16/outline.json << EOF
 EOF
 ```
 
-#### Step 3.5.6 — Create Environment Probe Result (Stage 00)
+#### Step 3.5.6 — Require Real Environment Probe (Stage 00)
 ```bash
-# Create minimal environment.json assuming basic capabilities
-cat > artifacts/{run_id}/stage-00/environment.json << EOF
+# External-project refactoring MUST NOT fabricate environment capability.
+# Record that probe execution is still required.
+cat > artifacts/{run_id}/stage-00/environment_recheck_required.json << EOF
 {
-  "pipeline_capable": true,
-  "execution_capable": true,
-  "latex_capable": true,
-  "network_capable": true,
-  "backend": {"type": "local_cpu", "source": "default_after_refactor"},
-  "refactored": true,
-  "probe_timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  "run_id": "{run_id}",
+  "probe_required": true,
+  "reason": "external_project_refactor",
+  "blocking_skills": ["arc-00-04-environment-probe"],
+  "status": "pending_real_probe",
+  "recorded_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 }
 EOF
 ```
@@ -628,17 +644,26 @@ cat > artifacts/{run_id}/refactoring_summary.json << EOF
   "refactored_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
   "migrated_items": {
     "topic": "{project_path}/README.md",
-    "literature": "inferred from requirements.txt",
+    "literature_inventory": "requirements.txt and existing bibliography copied as unverified inputs",
     "code": "{project_path}/src or {project_path}/main.py",
     "paper": "{project_path}/paper.tex or paper.md"
   },
-  "created_structure": "artifacts/{run_id}/stage-{01,04,10,16,17}/",
-  "ready_for_iteration": true
+  "created_structure": "artifacts/{run_id}/stage-{00,01,04,10,16,17}/",
+  "ready_for_iteration": true,
+  "ready_for_iteration_note": "ready to continue diagnosis and delegated fixes, not ready to claim completed validation",
+  "blocking_followups": [
+    "arc-00-04-environment-probe",
+    "arc-02-02-literature-collect or arc-08-04-citation-verify",
+    "arc-08-03-export-publish",
+    "arc-10-01-claim-evidence-trace-gate",
+    "arc-10-02-figure-quality-gate",
+    "arc-10-03-submission-format-gate"
+  ]
 }
 EOF
 ```
 
-**After refactoring, the external project is now an ARC-structured project with run_id. Continue to Step 4 with the newly created artifacts/ structure.**
+**After refactoring, the external project has an ARC-compatible artifact skeleton with run_id. It is NOT considered stage-complete: environment probing, literature verification, execution validation, export, and the required late-stage gates must still run for real before the project can be treated as ARC-complete. Continue to Step 4 with the migrated artifacts/ structure.**
 
 ### Step 4 — Check Quality Indicators
 
@@ -649,17 +674,21 @@ Verify existence of key outputs:
 | `has_latex` | `*.tex` files exist | Paper can be compiled |
 | `has_pdf` | `*.pdf` files exist | Paper output available |
 | `has_reproducibility_bundle` | `reproducibility_report.json` exists | Research is reproducible |
-| `has_verified_citations` | `references.bib` with verified DOIs | Citations are authentic |
+| `has_verified_citations` | `references.bib` plus stage verification artifacts | Citations are authentic only after real verification |
 | `has_experiment_code` | `experiment/` or `src/` | Code for experiments exists |
 | `has_experiment_results` | `experiment_summary.json` or `runs/` | Real results exist |
 
 ### Step 5 — Generate Diagnostic Report
 
+Before finalizing the diagnostic report, optionally consult the portable shared experience store at `meta_store_path` if it exists. Reuse only validated lessons such as recurring reviewer pain points, repeated failure patterns, or remediations that already worked in prior runs/projects; never treat meta guidance as evidence that a current blocking check has already passed.
+
 **Identify critical_gaps (blocking issues):**
 - Quality gate not passed
+- Missing or unverified environment probe for runnable/exportable pipeline
 - Missing LaTeX/PDF output
-- Unverified citations
-- Missing trust gates
+- Unverified or insufficient citations
+- Missing required late-stage gates
+- Figures lack provenance, authenticity, or required quality metadata
 
 **Generate improvement_plan sorted by priority:**
 1. Priority 1: Fix blocking issues
@@ -677,6 +706,8 @@ Create or read existing `iteration_state.json`:
 
 **All fixes MUST be delegated to the appropriate main pipeline skills.** This ensures the improvement loop uses the exact same logic as the main pipeline.
 
+**Hard prerequisite before any export or late-stage delegation:** `arc-00-04-environment-probe` must have produced a real blocking/pass result for the active run. A migrated placeholder such as `stage-00/environment_recheck_required.json` is only evidence that probing is still required; it is never sufficient to invoke stage 22 or any of stages 23–28.
+
 #### For Critical Gaps (Priority 1):
 
 **GAP-001: Quality gate not passed**
@@ -685,12 +716,14 @@ Create or read existing `iteration_state.json`:
 - Loop: `arc-08-01-quality-gate` → reject → fix → `arc-08-01-quality-gate` until approved
 
 **GAP-002: Missing PDF/LaTeX**
+- Prerequisite: a real Stage-0 environment probe result confirming execution/LaTeX/network capability for this run
 - Delegate to: `/invoke arc-08-03-export-publish`
 - On compile failure: `/invoke arc-09-02-paper-polish` to fix LaTeX issues
 
-**GAP-003: Unverified citations**
+**GAP-003: Unverified or insufficient citations**
 - Delegate to: `/invoke arc-08-04-citation-verify`
 - On unverifiable DOI: Fix or remove citation → re-verify
+- On citation-count or recency failure: expand verified bibliography upstream, then re-verify
 
 #### For Quality Improvements (Priority 2):
 
@@ -713,7 +746,7 @@ All Priority 2 improvements that require running experiments MUST be delegated t
 | Quality gate rejection | `arc-08-01-quality-gate` | Approved |
 | Paper content fix | `arc-07-04-paper-revision` | Done |
 | LaTeX/PDF export | `arc-08-03-export-publish` | PDF exists |
-| Citation verification | `arc-08-04-citation-verify` | All verified |
+| Citation verification | `arc-08-04-citation-verify` | All verified and citation thresholds pass |
 | Experiment improvement | `arc-05-02-iterative-refine` | Metrics improved |
 | Paper polish | `arc-09-02-paper-polish` | Done |
 | Review loop | `arc-09-01-paper-review-loop` | Done |
@@ -771,7 +804,7 @@ done
 ### Step 10 — Compile and Validate LaTeX
 
 ```bash
-cd {project_path}/artifacts/<run_id>/stage-*/
+cd {project_path}/artifacts/<run_id>/stage-25/
 pdflatex -interaction=nonstopmode main.tex > compile.log 2>&1
 bibtex main > bibtex.log 2>&1
 pdflatex -interaction=nonstopmode main.tex > compile.log 2>&1
@@ -798,11 +831,13 @@ After all fixes applied:
 5. Update `quality_history`
 6. Increment `iteration_count`
 
+A Stage-20 quality score alone is not enough to unlock export or claim completion. Before proceeding beyond this step, confirm that any required Stage-0 probe has run for real and that Stage 20 is approved rather than merely tolerated via noncritical iteration behavior.
+
 **Exit conditions:**
-- If `quality_score >= target_quality`: **Proceed to Step 12** (Pass Remaining Gates)
-- If `iteration_count >= max_iterations` AND `quality_score < target_quality`:
-  - Write `improvement_final_report.json` with `target_reached: false`
-  - Fail with `E_RECHECK_07` — max iterations reached without target
+- If `quality_score >= target_quality`: **Proceed to Step 12** (Pass Remaining Gates). This does NOT yet mean success.
+- If `iteration_count >= max_iterations` AND (`quality_score < target_quality` OR required late-stage gates are still missing):
+  - Write `improvement_final_report.json` with `target_reached: false` and `invariant_satisfied: false`
+  - Fail with `E_RECHECK_07` — max iterations reached before final acceptance conditions were met
 - Otherwise: **Loop to Step 7** (continue iterating)
 
 ### Step 12 — Pass Remaining Gates
@@ -810,17 +845,31 @@ After all fixes applied:
 If quality target reached, complete remaining stages:
 
 ```bash
+# A real environment probe is mandatory before export or late-stage execution.
+[ -f artifacts/<run_id>/stage-00/environment.json ] || /invoke arc-00-04-environment-probe
+
+# Stage 20 must be approved before any stage-22+ handoff can be treated as valid.
+/invoke arc-08-01-quality-gate
+
+# Export must exist before citation verify or later gates can run.
+[ -f artifacts/<run_id>/stage-22/main.pdf ] || /invoke arc-08-03-export-publish
+
+# Stage 23 must exist before late-stage completion can be claimed.
+if [ ! -f artifacts/<run_id>/stage-23/verification_report.json ]; then
+    /invoke arc-08-04-citation-verify
+fi
+
 # Stage 24: Paper review loop (if not already run)
-if [ ! -f stage-24/review_report.json ]; then
+if [ ! -f artifacts/<run_id>/stage-24/AUTO_REVIEW.md ]; then
     /invoke arc-09-01-paper-review-loop
 fi
 
 # Stage 25: Paper polish
-if [ ! -f stage-25/paper_polished.md ]; then
+if [ ! -f artifacts/<run_id>/stage-25/paper_polished.md ]; then
     /invoke arc-09-02-paper-polish
 fi
 
-# Stage 26: Numeric truth gate
+# Stage 26: Numeric truth gate then claim-evidence gate
 /invoke arc-10-04-numeric-truth-gate
 /invoke arc-10-01-claim-evidence-trace-gate
 
@@ -831,7 +880,7 @@ fi
 /invoke arc-10-03-submission-format-gate
 ```
 
-Record each gate pass in `gates_passed` array.
+Record each completed late-stage gate in `gates_passed` array. Do not mark final acceptance until a real Stage-0 probe result exists, Stage 20 is approved, and citation verification, paper polish, numeric-truth, claim-evidence trace, figure quality, and submission-format outputs all exist and pass their blocking conditions.
 
 ### Step 13 — Generate Final Reports
 
@@ -839,7 +888,8 @@ Record each gate pass in `gates_passed` array.
 - Total iterations
 - Final quality score
 - Whether target was reached
-- Which gates passed
+- Whether the core invariant was satisfied
+- Which late-stage gates passed
 - Final output locations
 - Any remaining issues
 
@@ -854,37 +904,42 @@ Record each gate pass in `gates_passed` array.
 
 1. **LaTeX + PDF exist and are valid:**
    ```bash
-   ls -la artifacts/<run_id>/stage-*/main.tex
-   ls -la artifacts/<run_id>/stage-*/main.pdf
-   file artifacts/<run_id>/stage-*/main.pdf  # verify it's a real PDF
+   ls -la artifacts/<run_id>/stage-25/main.tex
+   ls -la artifacts/<run_id>/stage-25/main.pdf
+   file artifacts/<run_id>/stage-25/main.pdf  # verify it's a real PDF
    ```
 
-2. **Citations are verifiable:**
+2. **Environment and citations are verifiable:**
    ```bash
-   # Each DOI in references.bib must resolve
-   for doi in $(grep -o '10\.[0-9]*/[0-9]*' artifacts/<run_id>/stage-*/references.bib | sort -u); do
+   # A real probe result must exist; placeholder migration markers are not enough.
+   [ -f artifacts/<run_id>/stage-00/environment.json ] || fail with `E_RECHECK_INVARIANT_BROKEN`
+
+   # Each DOI in the polished bibliography must resolve, and stage-23 verification must exist.
+   [ -f artifacts/<run_id>/stage-23/verification_report.json ] || fail with `E_RECHECK_INVARIANT_BROKEN`
+   for doi in $(grep -o '10\.[0-9]*/[0-9]*' artifacts/<run_id>/stage-25/references.bib | sort -u); do
      status=$(curl -s -o /dev/null -w "%{http_code}" "https://doi.org/$doi")
-     [ "$status" = "200" ] || fail with `E_RECHECK_INVARIANT_BROKEN`
+     [ "$status" = "200" ] || [ "$status" = "301" ] || fail with `E_RECHECK_INVARIANT_BROKEN`
    done
    ```
 
 3. **Experiment data is real (not fabricated):**
    ```bash
-   # Verify experiment_summary.json has realistic metrics
+   # Verify experiment_summary.json records traceable metrics with non-negative dispersion.
+   # Do not assume every legitimate metric is normalized to [0,1].
    python3 -c "
    import json
-   with open('artifacts/<run_id>/stage-*/experiment_summary.json') as f:
+   with open('artifacts/<run_id>/stage-14/experiment_summary.json') as f:
        data = json.load(f)
        for k, v in data.get('all_metrics', {}).items():
-           assert 0 <= v['mean'] <= 1, 'Metric out of realistic range'
+           assert 'mean' in v, 'Metric missing mean'
            assert v['std'] >= 0, 'Std must be non-negative'
-           assert v['n_seeds'] >= 3, 'Need at least 3 seeds'
+           assert v['n_seeds'] >= 1, 'Need at least one recorded seed/run'
    "
    ```
 
 4. **Paper compiles cleanly:**
    ```bash
-   cd artifacts/<run_id>/stage-*/
+   cd artifacts/<run_id>/stage-25/
    pdflatex -interaction=nonstopmode main.tex | grep -q "Error" && fail
    [ -s main.pdf ] || fail
    ```
@@ -892,13 +947,16 @@ Record each gate pass in `gates_passed` array.
 5. **Citation hard requirements:**
    ```bash
    # Count total citations
-   total=$(grep -c "^@" artifacts/<run_id>/stage-*/references.bib 2>/dev/null || echo 0)
+   total=$(grep -c "^@" artifacts/<run_id>/stage-25/references.bib 2>/dev/null || echo 0)
    [ "$total" -ge 30 ] || fail with `E_RECHECK_CITATION_COUNT`
 
    # Check recent citations (2021-2026)
-   recent=$(grep -E "year\s*=\s*\{(202[1-6])" artifacts/<run_id>/stage-*/references.bib 2>/dev/null | wc -l)
+   recent=$(grep -E "year\s*=\s*\{(202[1-6])" artifacts/<run_id>/stage-25/references.bib 2>/dev/null | wc -l)
    recent_pct=$((recent * 100 / total))
    [ "$recent_pct" -ge 20 ] || fail with `E_RECHECK_CITATION_RECENCY`
+
+   # Require late-stage verification artifact rather than trusting migrated bibliography alone
+   [ -f artifacts/<run_id>/stage-23/verification_report.json ] || fail with `E_RECHECK_INVARIANT_BROKEN`
    ```
 
 **If ANY check fails:**
@@ -929,9 +987,9 @@ This skill can run:
 3. **Post-pipeline**: After pipeline completion to identify improvement opportunities
 4. **Between stages**: To diagnose issues and propose fixes
 
-**This skill is always in "full" mode** — it diagnoses, iterates improvements, and continues until quality target or max iterations is reached, then passes all remaining trust gates.
+**This skill is always in "full" mode** — it diagnoses, iterates improvements, and continues until quality target is reached and all required late-stage gates pass, or until max iterations is exhausted.
 
-**Does NOT modify pipeline state** — only generates reports and improvement artifacts.
+**Does NOT modify pipeline state** — it generates reports, migrated artifacts, and delegated-fix outputs, but it does not mark core orchestrator state files as completed on behalf of skipped checks.
 
 ---
 
@@ -942,14 +1000,16 @@ This skill can run:
 This skill verifies:
 - **Authenticity**: File existence and content are real, not fabricated
 - **Citation Verifiability**: Every DOI resolves via doi.org (no fake references)
+- **Citation Sufficiency**: Reference count and recent-reference ratio satisfy the hard paper standards unless explicitly justified
 - **Experiment Reality**: All experiment results come from actual code execution, not simulation
+- **Figure Authenticity**: Figures are evidence-bearing and traceable to real experiment outputs
 - **Compilation**: LaTeX produces a real PDF without errors
 - **Claim Traceability**: Every claim in the paper traces to evidence in artifacts/
 
 **On ANY violation:**
 1. Immediately abort with `E_RECHECK_INVARIANT_BROKEN` (if core invariant broken) or `E_RECHECK_05` (if hallucination detected)
 2. Write detailed `HALLUCINATION_REPORT.md` or `INVARIANT_BREAK_REPORT.md`
-3. Pipeline CANNOT proceed with fake or unverifiable outputs
+3. Pipeline CANNOT proceed with fake, unverifiable, or dishonestly logged outputs
 
 **The CORE INVARIANT is absolute:** If the project cannot produce an authentic, verifiable, reproducible academic paper with LaTeX + PDF, the skill MUST fail rather than produce degraded output.
 

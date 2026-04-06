@@ -28,6 +28,7 @@ Address the major concerns from peer reviews and produce a revised paper. Every 
 ## Inputs
 `artifacts/<run_id>/stage-17/paper_draft.md`
 `artifacts/<run_id>/stage-18/reviews.md`
+`artifacts/<run_id>/template/template_manifest.json`
 
 ---
 
@@ -85,8 +86,8 @@ Max retries: **1** — retry if revision_log doesn't cover all major concerns.
 
 ## Procedure
 
-### Step 1 — Read Draft and Reviews
-Read `paper_draft.md` and `reviews.md`. For each major concern, note: the concern text, which reviewer raised it, and the section it references.
+### Step 1 — Read Draft, Reviews, and Template Contract
+Read `paper_draft.md`, `reviews.md`, and `template_manifest.json`. For each major concern, note: the concern text, which reviewer raised it, and the section it references.
 
 ### Step 2 — Triage Concerns
 For each major concern:
@@ -99,6 +100,7 @@ Create `paper_revised.md` based on `paper_draft.md`, applying the planned fixes:
 - Add missing evidence to support claims
 - Rewrite unclear sections to address reviewer concerns
 - Add additional experiments if feasible (within time budget)
+- Preserve template-sensitive constraints from `template_manifest.json` (anonymous mode, required sections, page-policy assumptions)
 - Do NOT introduce new unsubstantiated claims while addressing concerns
 
 ### Step 4 — Write revision_log.md

@@ -1,10 +1,64 @@
-# arc-skills v4.1
+# arc-skills v4.2
 
 Pure-skills research pipeline for AutoResearchClaw. **Executable as a standalone skill chain by any AI agent** — the workflow is agent-portable, while successful execution still depends on real local capabilities such as Python execution, network access, and local LaTeX.
+
+Core non-negotiable objective: when the full chain succeeds, it should yield a **high-quality, verifiable, reproducible, authentic academic paper** with at minimum real LaTeX sources, a locally compiled PDF, verified references, real experiment-backed claims, and submission-format compliance.
+
+## Quick Start
+
+Prerequisites:
+- A real execution backend for experiments (local GPU/CPU or reachable SSH backend)
+- Local LaTeX (`pdflatex` + `bibtex`) for real PDF compilation
+- Network access to `doi.org` and `arxiv.org` for citation verification
+
+Install into Claude Code skills:
+```bash
+cp -R arc-skills/* ~/.claude/skills/
+```
+
+Canonical entrypoint — start from an idea:
+```text
+/arc-00-01-research-pipeline
+{
+  "topic": "your research idea",
+  "target_venue": "neurips"
+}
+```
+
+Canonical entrypoint — improve an existing paper/code project:
+```text
+/arc-00-01-research-pipeline
+{
+  "mode": "existing_project_improvement",
+  "project_path": "/path/to/project"
+}
+```
+
+Recovery helper:
+```text
+/arc-00-03-resume
+```
+
+`arc-00-01-research-pipeline` is the only user-facing pipeline entry. It supports exactly two modes: default `idea_start` and `existing_project_improvement`.
 
 ## Design Philosophy
 
 **Skill = Task Definition + Output Contract + Acceptance Rules.**
+
+## Hard Paper Standards
+
+The chain target is not merely “a paper-shaped artifact”. Final acceptance should satisfy hard academic-output standards:
+
+- Real local LaTeX compilation is mandatory; no fake or placeholder PDF path
+- Verified literature only; fabricated/unverifiable references are blocking failures
+- Quantitative claims must remain traceable to real experiment artifacts
+- The paper should normally carry **at least 30 references**
+- The paper should normally maintain **at least 20% of references from the last 5 years**
+- Figures must satisfy venue-aware hard standards for count, readability, style, and file quality
+- Figures must be traceable to real experiment outputs; fabricated or decorative figures are unacceptable
+- Missing critical execution / LaTeX / network capability is blocking, not degradable
+
+These standards should shape every iteration loop, review loop, and re-check flow.
 
 Each SKILL.md describes:
 - **What** must be produced (output schema)
@@ -43,13 +97,14 @@ All 28 stage skills follow this mandatory structure:
 
 | Skill | Role | Has Procedure |
 |-------|------|--------------|
-| `arc-00-01-research-pipeline` | Full chain orchestrator for Stage 0 + stages 1–28 (Phase 0-J) | N/A (protocol def) |
+| `arc-00-01-research-pipeline` | Canonical user-facing entrypoint. Runs the pipeline in exactly two modes: default `idea_start`, or `existing_project_improvement` for paper/code re-check and iterative improvement. | N/A (protocol def) |
 | `arc-00-02-status` | Read-only state inspector | Yes — 7 steps |
 | `arc-00-03-resume` | Resume from checkpoint | Yes — 7 steps |
-| `arc-00-04-environment-probe` | Environment detection (execution + local LaTeX + network) — MUST run first, BLOCKING on missing capabilities | Yes — 11 steps |
-| `arc-00-05-project-recheck` | Unified project diagnostic + iterative improvement. Analyzes existing projects (ARC or external), executes refactoring for external projects, delegates all fixes to main pipeline skills, iterates until quality target or max iterations, then passes all trust gates. CORE INVARIANT: always produces high-quality verifiable reproducible paper with LaTeX + PDF. | Yes — 14 steps |
-| `arc-09-01-paper-review-loop` | External adversarial review (provider-neutral, multi-round) | Yes — 9 steps |
-| `arc-09-02-paper-polish` | De-AI Polish + Reverse Outline + final checks | Yes — 7 steps |
+| `arc-00-04-environment-probe` | Internal/support orchestrator for environment detection (execution + local LaTeX + network). Automatically required before pipeline progress. | Yes — 11 steps |
+| `arc-00-05-project-recheck` | Internal/support orchestrator used by `existing_project_improvement` mode. Diagnoses existing projects, restructures external ones into ARC-compatible artifacts, delegates fixes to main pipeline skills, and iterates until quality target and required late-stage gates pass or max iterations is exhausted. | Yes — 14 steps |
+| `arc-00-06-meta-optimizer` | Internal/support orchestrator for experience accumulation and reuse. Distills reusable guidance from real artifacts into run-owned outputs without relying on bundled non-skill storage. | Yes — 8 steps |
+| `arc-09-01-paper-review-loop` | External adversarial review via Codex/GPT-5.4 MCP in nightmare mode, with degraded-local review logged honestly only as fallback. | Yes — 9 steps |
+| `arc-09-02-paper-polish` | De-AI Polish + Reverse Outline + provenance-preserving final checks | Yes — 7 steps |
 
 **All 28 stage skills** now have complete sections: Purpose · Quality Contract · Inputs · Outputs · **Procedure** · Validation · Error Codes · Retry Policy · State Transition. Gate/decision stages additionally have Gate Behavior and/or Rollback Contract.
 
@@ -66,10 +121,43 @@ All 28 stage skills follow this mandatory structure:
 | D: Experiment Design | arc-04-01 → arc-04-03 | Design (GATE) → Code gen → Resource plan |
 | E: Execution | arc-05-01 → arc-05-02 | Run experiments → Iterative refine (with auto-repair) |
 | F: Analysis | arc-06-01 → arc-06-02 | Result analysis (with data validation) → Research decision (pivot/refine/proceed) |
+| G0: Template Resolution | arc-07-00 | Resolve conference/journal target into a reusable venue-aware LaTeX template manifest |
 | G: Writing | arc-07-01 → arc-07-04 | Outline → Draft (10-step with De-AI + Reverse Outline) → Review → Revision |
-| H: Finalization | arc-08-01 → arc-08-04 | Quality (GATE) → Archive → Export (local LaTeX + reproducibility bundle) → Verify (multi-layer) |
-| I: Review & Polish | arc-09-01 → arc-09-02 | External Review Loop → De-AI Polish (citation-stable, verified bib preserved) |
-| J: Trust Gates | arc-10-01 → arc-10-03 | Claim-Evidence Trace (GATE, requires arc-10-04 numeric-truth pre-gate with output `stage-26-pre/numeric_truth_report.json`) → Figure Quality (GATE) → Submission Format (GATE, checks explicit reproducibility artifact) |
+| H: Finalization | arc-08-01 → arc-08-04 | Quality (GATE) → Archive → Export (local LaTeX + reproducibility bundle + template manifest) → Verify (multi-layer) |
+| I: Review & Polish | arc-09-01 → arc-09-02 | External nightmare review via Codex/GPT-5.4 MCP → De-AI Polish (citation-stable, verified bib preserved, template contract preserved, provenance intact) |
+| J: Late-Stage Gates | arc-10-01 → arc-10-03 | Claim-Evidence Trace (GATE, requires arc-10-04 numeric-truth pre-gate with output `stage-26-pre/numeric_truth_report.json`) → Figure Quality (GATE, enforces venue-aware hard figure-count/style/traceability/authenticity rules against the polished package) → Submission Format (GATE, checks numeric-truth integrity, explicit reproducibility artifact, internally consistent template contracts, figure provenance consistency, and resolved venue rules) |
+
+---
+
+## Supported Venue / Template Families
+
+The pipeline is now venue-aware. Template semantics are resolved before writing/export and preserved through submission gates.
+
+Template/template-family rules are defined directly by the skills chain as text contracts rather than bundled JSON registries or asset folders.
+
+The chain remains venue-aware, but because this repo is pure-skills-only:
+- no built-in registry file is assumed
+- no bundled schema file is assumed
+- no bundled template asset directory is assumed
+- if the chosen venue requires official LaTeX assets that are not already present in the execution workspace, stage 22 must block honestly rather than degrade
+
+| Family | Example template IDs | Publication type |
+|-------|-----------------------|------------------|
+| `neurips` | `neurips_2025`, `neurips_2024` | conference |
+| `iclr` | `iclr_2026`, `iclr_2025` | conference |
+| `icml` | `icml_2026`, `icml_2025` | conference |
+| `aaai` | `aaai_2026` | conference |
+| `acl_family` | `acl_2025`, `emnlp_2025`, `naacl_2025` | conference |
+| `cv_family` | `cvpr_2026`, `iccv_2025`, `eccv_2026` | conference |
+| `kdd` | `kdd_2025` | conference |
+| `ieee_conf` | `ieeetran_conference` | conference |
+| `ieee_journal` | `ieeetran_journal` | journal |
+| `elsevier_journal` | `elsevier_cas_sc`, `pattern_recognition` | journal |
+| `springer_journal` | `springer_lncs_journal_style` | journal |
+
+Conference targets should carry explicit page-limit rules and usually default to `submission_mode: anonymous`. Journal targets may use `page_limit_policy` instead of a hard main-body cap and usually default to `submission_mode: preprint` unless camera-ready delivery is requested.
+
+Template-contract validation rules also carry hard figure standards, including minimum figure count, recommended figure-count range, and style/file-quality requirements (`caption_required`, `legend_required_for_multiseries`, `units_required_when_numeric_axes`, `color_consistent_across_figures`, `font_readable_min_pt`, `vector_preferred`, `raster_dpi_min`, `subfigure_label_style`).
 
 ---
 
@@ -98,16 +186,18 @@ All 28 stage skills follow this mandatory structure:
 
 **Stage 4** (arc-02-02-literature-collect) is **CRITICAL and BLOCKING on hallucinations** — any unverifiable DOI/arXiv ID triggers `E04_HALLUCINATION_DETECTED`.
 
-**Stage 20** (arc-08-01), **Stage 21** (arc-08-02), and **Stage 24** (arc-09-01) are noncritical — failures or degraded-local review outcomes are logged but do not abort deliverables.
+The intended paper-quality floor is also explicit: references should normally reach at least 30 verified items, with at least 20% from the last 5 years, unless the topic genuinely lacks recent literature. This is a quality target for writing/review loops, not a license to fabricate citations.
+
+**Stage 20** (arc-08-01), **Stage 21** (arc-08-02), and **Stage 24** (arc-09-01) are noncritical for iteration bookkeeping, but only Stage 21 and Stage 24 may truly be skipped. Stage 20 must still be approved before Stage 22 export or any later stage can claim valid late-stage handoff or final acceptance; failures or degraded-local review outcomes must be logged honestly.
 
 **Stage 25** (arc-09-02-paper-polish) is **always critical** — De-AI patterns and structural failures MUST block export.
 
-**Stage 23** (arc-08-04) blocks on hallucinated citations (E23) — this check runs before Trust Gates to catch fake references early.
+**Stage 23** (arc-08-04) blocks on hallucinated citations, unverifiable citations, or unjustified citation-threshold failures (`E23`, `E23_CITATION_THRESHOLD`) — this check runs before late-stage gates to catch fake or insufficient references early.
 
-**Stages 26–28** are **always critical** trust gates:
-- Stage 26 (arc-10-01): block on unsupported or untraceable claims (E26), and on numeric pre-gate failures (`E26_NUMERIC_*`) from `arc-10-04`
-- Stage 27 (arc-10-02): block on figure quality failures (E27)
-- Stage 28 (arc-10-03): block on submission format noncompliance (E28)
+**Stages 26–28** are **always critical** late-stage gates:
+- Stage 26 (arc-10-01): block on unsupported, untraceable, or direction-conflicted claims (E26, `E26_DIRECTION_CONFLICT`), and on numeric pre-gate failures (`E26_NUMERIC_*`) from `arc-10-04`
+- Stage 27 (arc-10-02): block on figure quality or authenticity failures against the polished package (E27)
+- Stage 28 (arc-10-03): block on numeric-truth, submission format, citation-threshold, figure-authenticity, or reproducibility noncompliance (E28, `E28_NUMERIC_PRECHECK_FAIL`)
 
 ---
 
@@ -123,22 +213,20 @@ All 28 stage skills follow this mandatory structure:
 ## Phase I: Review & Polish (Stages 24–25)
 
 ### arc-09-01-paper-review-loop
-External adversarial multi-round review. Breaks the self-review trap. It reviews the stable stage-22 package, records remediation handoff items for downstream execution, and does not mutate the canonical package in place. If no independent reviewer is available, the stage downgrades to `review_mode: degraded_local` and records that downgrade explicitly instead of silently pretending independence.
+External adversarial multi-round review. Breaks the self-review trap. It reviews the stable stage-22 package, records remediation handoff items for downstream execution, and does not mutate the canonical package in place. If no independent reviewer is available, the stage downgrades to `review_mode: degraded_local` and records that downgrade explicitly instead of silently pretending independence. Degraded-local review may inform downstream fixes, but it cannot waive blocking concerns for citation authenticity, numeric truth, claim traceability, figure authenticity, or submission-format compliance.
 
 | Constant | Value |
 |----------|-------|
-| `MAX_ROUNDS` | 4 |
+| `MAX_ROUNDS` | 40 |
 | `POSITIVE_THRESHOLD` | score ≥ 6/10 AND verdict "ready" or "almost" |
 | `REVIEWER_ROLE` | `external_adversarial_reviewer` |
-| `REVIEWER_MODEL` | `executor-selected` |
-| `REVIEWER_PROVIDER` | `executor-selected` |
+| `REVIEWER_MODEL` | `gpt-5.4` |
+| `REVIEWER_PROVIDER` | `codex_mcp` |
 | `HUMAN_CHECKPOINT` | `false` |
-| `REVIEWER_DIFFICULTY` | `medium` \| `hard` \| `nightmare` |
+| `REVIEWER_DIFFICULTY` | `nightmare` |
 
-**Difficulty modes:**
-- `medium`: executor supplies curated context to an independent reviewer if available
-- `hard`: + Reviewer Memory + Debate Protocol
-- `nightmare`: reviewer verifies paper/code/results directly when the executing agent can support it
+**Reviewer mode:**
+- `nightmare`: Codex/GPT-5.4 MCP independently verifies paper, code, citations, numeric claims, and figure provenance; if MCP is unavailable, the stage downgrades honestly to `degraded_local` and logs that downgrade explicitly
 
 ### arc-09-02-paper-polish
 Dedicated De-AI Polish Pass + Reverse Outline Test + final structural verification.
@@ -151,7 +239,7 @@ Key checks:
 - No stale section files
 - Regenerates the final polished package used by stages 26–28
 
-## Phase J: Trust Gates (Stages 26–28)
+## Phase J: Late-Stage Gates (Stages 26–28)
 
 ### arc-10-01-claim-evidence-trace-gate
 Builds a machine-checkable claim-evidence matrix and blocks unsupported/untraceable claims. Stage 26 execution requires pre-gate `arc-10-04`, which writes `stage-26-pre/numeric_truth_report.json`.
@@ -160,24 +248,43 @@ Builds a machine-checkable claim-evidence matrix and blocks unsupported/untracea
 Validates quantitative claim consistency against experiment artifacts before claim-evidence gating.
 
 ### arc-10-02-figure-quality-gate
-Validates figure readability, statistical consistency, and data traceability.
+Validates venue-aware hard figure-count thresholds, readability, style consistency, file quality, statistical consistency, data traceability, and figure authenticity against the canonical polished package (`stage-25/deliverables/charts/` plus `stage-25/main.tex`).
 
 ### arc-10-03-submission-format-gate
-Final submission gate: enforces compile cleanliness, venue format, and complete reproducibility-ready bundle.
+Final submission gate: enforces numeric-truth pre-gate integrity, compile cleanliness, schema-valid template/report contracts, page/anonymity/front-matter checks, figure-gate consistency including authenticity, citation-threshold checks, and complete reproducibility-ready bundle.
 
 ### Late-stage canonical handoff
-- Stage 22 produces the canonical review/export bundle at `artifacts/<run_id>/stage-22/` (`paper_final.md`, `main.tex`, `main.pdf`, `references.bib`, `compile_report.json`, `manifest.json`, `reproducibility_report.json`, `deliverables/`)
+- Template semantics are resolved once at `artifacts/<run_id>/template/template_manifest.json` and reused by stages 16–28
+- Stage 22 produces the canonical review/export bundle at `artifacts/<run_id>/stage-22/` (`paper_final.md`, `main.tex`, `main.pdf`, `references.bib`, `compile_report.json`, `manifest.json`, `reproducibility_report.json`, `template_manifest.json`, `deliverables/`)
 - Stage 23 verifies citations against `artifacts/<run_id>/stage-22/`, emits `artifacts/<run_id>/stage-23/references_verified.bib`, and does not mutate the stage-22 bundle in place
-- Stage 24 performs adversarial review against the same stage-22 bundle and records review artifacts under `artifacts/<run_id>/stage-24/`
-- Stage 25 regenerates the canonical polished bundle at `artifacts/<run_id>/stage-25/` (`paper_polished.md`, `main.tex`, `main.pdf`, `references.bib`, `compile_report.json`, `manifest.json`, `reproducibility_report.json`, `deliverables/`) from stage-22 content plus the stage-23 verified bibliography
-- Stages 26–28 validate only the stage-25 polished bundle, with Stage 28 writing gate artifacts under `artifacts/<run_id>/stage-28/`
-- If stage 27 or 28 rejects, rollback returns to stage 22 so stages 23–25 can be re-run against a refreshed export before trust gates resume
+- Stage 24 performs adversarial review against the same stage-22 bundle and records `review_state.json` plus `AUTO_REVIEW.md` under `artifacts/<run_id>/stage-24/`
+- Stage 25 regenerates the canonical polished bundle at `artifacts/<run_id>/stage-25/` (`paper_polished.md`, `main.tex`, `main.pdf`, `references.bib`, `compile_report.json`, `manifest.json`, `reproducibility_report.json`, `template_manifest.json`, `deliverables/`) from stage-22 content plus the stage-23 verified bibliography
+- Stage 27 writes `artifacts/<run_id>/stage-27/figure_quality_report.json`, which must match the polished package and resolved venue-specific figure rules
+- Stages 26–28 validate only the stage-25 polished bundle; Stage 26/28 also require intact `stage-26-pre/numeric_truth_report.json`, and Stage 28 writes gate artifacts under `artifacts/<run_id>/stage-28/`
+- If stage 27 or 28 rejects, rollback returns to stage 22 so stages 23–25 can be re-run against a refreshed export before the remaining late-stage gates resume; the refreshed export must include a real repaired change, not a no-op loop through the same artifacts
 
 ### Why this arrangement
 - Review and citation verification happen against a stable exported package
 - Polish creates a new canonical package instead of mutating the review package in place
 - Trust gates validate the final polished artifacts, not an older draft/export snapshot
 - Late rollback preserves the verification chain by forcing stages 23–25 to run again after stage-22 regeneration
+
+## Late-stage acceptance matrix
+
+| Acceptance dimension | Primary stage | Must prove | Blocking rule |
+|---------------------|---------------|------------|---------------|
+| Environment reality | Stage 0 (`arc-00-04`) | Real execution, local LaTeX, and network are available | Missing critical capability blocks pipeline start |
+| Citation authenticity | Stage 23 (`arc-08-04`) | Every citation is verified or reused from verified corpus | Any hallucinated/unverifiable citation blocks |
+| Citation sufficiency | Stage 23 / 25 / 28 | Bibliography reaches ≥30 verified refs and ≥20% from last 5 years, or has explicit topic justification | Unjustified failure blocks late-stage handoff |
+| Review observability | Stage 24 (`arc-09-01`) | Review artifacts are recorded honestly, including degraded-local fallback when needed, and any discovered blocking concerns remain visible downstream | Missing/false review logging is not acceptable, though stage 24 itself remains noncritical |
+| Claim traceability | Stage 26 (`arc-10-01`) | Every important claim maps to evidence, and directional/hypothesis-support wording matches that evidence | Unsupported or direction-conflicted claims block |
+| Numeric truth | Stage 26 pre-gate (`arc-10-04`) | Quantitative statements match experiment artifacts, and the pre-gate report remains present whenever Stage 26 progress is claimed | Numeric mismatch or missing pre-gate evidence blocks |
+| Figure quality | Stage 27 (`arc-10-02`) | Figures satisfy count, readability, style, and file-quality rules | Critical figure failure blocks |
+| Figure authenticity | Stage 27 / 28 | Figures are evidence-bearing and traceable to real experiment outputs | Decorative/fabricated figure blocks |
+| Reproducibility semantics | Stage 22 / 25 / 28 | Commands, seeds, environment, and provenance are preserved | Missing or semantically broken reproducibility artifact blocks |
+| Submission-format compliance | Stage 28 (`arc-10-03`) | Compile clean, schema-valid, venue-valid final package | Format/package noncompliance blocks |
+
+This matrix is the final acceptance contract for the whole chain: a run is not "successful" unless all blocking dimensions are satisfied.
 
 ---
 
@@ -223,11 +330,11 @@ Final submission gate: enforces compile cleanliness, venue format, and complete 
 | E20 | QUALITY_GATE | 0 (→rollback) | — |
 | E21 | KNOWLEDGE_ARCHIVE | 1 | — |
 | E22 | EXPORT_PUBLISH | 2 | Stage-22 export package failed local LaTeX compilation, reporting, or packaging |
-| E23 | CITATION_VERIFY | 1 (blocks export) | Stage-23 citation verification found hallucinated or unverifiable citations |
-| E24 | PAPER_REVIEW_LOOP | 1 | Stage-24 review loop state failure, or reviewer downgrade/failure explicitly logged in review artifacts |
-| E25 | PAPER_POLISH | 1 (blocks export) | Stage-25 polish, citation-stability, reproducibility, or package regeneration failure |
+| E23 | CITATION_VERIFY | 1 (blocks late-stage handoff) | Stage-23 citation verification found hallucinated, unverifiable, or unjustifiably insufficient citations |
+| E24 | PAPER_REVIEW_LOOP | 1 | Stage-24 review loop state failure, or reviewer downgrade/failure explicitly and honestly logged in review artifacts |
+| E25 | PAPER_POLISH | 1 (blocks late-stage handoff) | Stage-25 polish, citation-stability/thresholds, reproducibility, or package regeneration failure |
 | E26 | CLAIM_EVIDENCE_TRACE_GATE | 0 (→rollback) | Unsupported/untraceable claims |
 | E26_NUMERIC_MISMATCH | NUMERIC_TRUTH_GATE (pre-gate) | 0 | Quantitative claim mismatches experiment data |
 | E26_NUMERIC_UNVERIFIABLE | NUMERIC_TRUTH_GATE (pre-gate) | 0 | Quantitative claim not traceable |
-| E27 | FIGURE_QUALITY_GATE | 1 (→rollback) | Figure quality or traceability failed |
-| E28 | SUBMISSION_FORMAT_GATE | 2 (→rollback) | Compile, format, package, or reproducibility noncompliance |
+| E27 | FIGURE_QUALITY_GATE | 1 (→rollback) | Figure quality, traceability, or authenticity failed |
+| E28 | SUBMISSION_FORMAT_GATE | 2 (→rollback) | Compile, format, package, citation-threshold, figure-authenticity, or reproducibility noncompliance |

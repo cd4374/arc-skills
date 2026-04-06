@@ -27,6 +27,7 @@ Execute the search plan to retrieve candidate papers from **real, verifiable dat
 - Papers are deduplicated by `doi` first, then `arxiv_id`
 - ≥2 data sources are represented in the results
 - `verification_report.json` must show `verified_count == total_count`
+- Candidate pool should be large and recent enough to support downstream targets of ≥30 final verified references and ≥20% references from the last 5 years
 
 ---
 
@@ -69,6 +70,8 @@ Every entry MUST have either:
   "arxiv_verified": 4,
   "verification_failed": 0,
   "rejected_hallucinations": 0,
+  "recent_candidate_ratio": 0.31,
+  "supports_reference_floor": true,
   "verification_pass": true,
   "sources_used": ["openalex", "arxiv", "semantic_scholar"],
   "verification_timestamp": "2026-04-05T12:00:00Z"
@@ -206,6 +209,8 @@ Record:
 - `arxiv_verified`: count of arXiv-verified papers
 - `verification_failed`: must be 0
 - `rejected_hallucinations`: count of rejected unverifiable papers
+- `recent_candidate_ratio`: fraction of verified candidates from the last 5 years
+- `supports_reference_floor`: true if the pool appears sufficient for downstream citation-count/recency targets
 - `verification_pass: true` only if `verification_failed == 0`
 
 ### Step 9 — Validate

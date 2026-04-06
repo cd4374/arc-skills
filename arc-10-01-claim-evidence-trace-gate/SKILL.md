@@ -20,13 +20,15 @@ Guarantee that every major claim in the paper is traceable to explicit evidence 
 `claim_evidence_matrix.json` MUST:
 - Enumerate every major claim with stable `claim_id`
 - Map each claim to at least one explicit evidence pointer
-- Classify each claim as `supported`, `partial`, or `unsupported`
+- Classify each claim as `supported`, `partial`, `unsupported`, or `direction_conflict`
 - Mark any untraceable claim with a blocking reason
+- Record whether each directional claim matches the sign, ordering, or support status implied by the underlying evidence and hypothesis/result artifacts
 
 Hard constraints:
 - `unsupported_claims.length == 0`
 - `untraceable_claims.length == 0`
-- `gate_pass: true`
+- `direction_conflicts.length == 0`
+- `gate_pass == true`
 
 ---
 
@@ -49,6 +51,7 @@ Hard constraints:
   "partial": 2,
   "unsupported": 0,
   "untraceable": 0,
+  "direction_conflicts": 0,
   "gate_pass": true,
   "claims": [
     {
@@ -56,6 +59,12 @@ Hard constraints:
       "claim_text": "Method X improves macro-F1 over baseline on dataset D.",
       "paper_location": "results.section.2",
       "status": "supported",
+      "direction_check": {
+        "claim_direction": "improves_over_baseline",
+        "evidence_direction": "improves_over_baseline",
+        "matches": true,
+        "notes": "Numeric pre-gate and result artifacts agree with the stated improvement direction."
+      },
       "evidence": [
         {
           "type": "table",
@@ -64,14 +73,15 @@ Hard constraints:
         },
         {
           "type": "figure",
-          "artifact": "stage-22/charts/fig1.pdf",
+          "artifact": "stage-25/deliverables/charts/fig1.pdf",
           "pointer": "caption: main comparison"
         }
       ]
     }
   ],
   "unsupported_claims": [],
-  "untraceable_claims": []
+  "untraceable_claims": [],
+  "direction_conflicts": []
 }
 ```
 
@@ -101,22 +111,26 @@ Read `artifacts/<run_id>/stage-26-pre/numeric_truth_report.json`. If the file is
 Read `paper_polished.md` and extract major result/method claims.
 
 ### Step 2 — Build Evidence Links
-For each claim, attach explicit evidence pointers from `experiment_summary.json` and the polished package artifacts in `stage-25/`.
+For each claim, attach explicit evidence pointers from `experiment_summary.json`, `numeric_truth_report.json`, and the polished package artifacts in `stage-25/`.
 
-### Step 3 — Classify Claim Status
+### Step 3 — Check Claim Direction and Support Semantics
+For any claim that implies improvement, degradation, parity, ranking, hypothesis support, or causal preference, compare the claim's direction against the numeric pre-gate evidence and underlying result artifacts. If the paper says a hypothesis is supported, the linked evidence must actually support that direction; if the evidence shows the opposite, weaker, or inconclusive result, record a `direction_conflict`.
+
+### Step 4 — Classify Claim Status
 Assign one status per claim:
 - `supported`: explicit, sufficient evidence
 - `partial`: some evidence but incomplete
 - `unsupported`: no valid evidence
+- `direction_conflict`: evidence exists but contradicts the stated claim direction/support status
 
-### Step 4 — Detect Untraceable Claims
+### Step 5 — Detect Untraceable Claims
 Mark claims as untraceable if no concrete pointer exists to table/figure/metric/citation artifacts.
 
-### Step 5 — Write Matrix
+### Step 6 — Write Matrix
 Write `claim_evidence_matrix.json` using the schema above.
 
-### Step 6 — Gate Decision
-If any `unsupported` or `untraceable` claims exist, set `gate_pass=false` and fail with `E26`.
+### Step 7 — Gate Decision
+If any `unsupported`, `untraceable`, or `direction_conflict` claims exist, set `gate_pass=false` and fail with `E26`.
 
 ---
 
@@ -130,6 +144,7 @@ If any `unsupported` or `untraceable` claims exist, set `gate_pass=false` and fa
 | Evidence pointers valid | Each claim has ≥1 explicit artifact pointer |
 | No unsupported claims | `unsupported == 0` |
 | No untraceable claims | `untraceable == 0` |
+| No direction conflicts | `direction_conflicts == 0` |
 | Gate pass flag | `gate_pass == true` |
 
 **Failure**: Any failed check → `E26`
@@ -144,6 +159,7 @@ If any `unsupported` or `untraceable` claims exist, set `gate_pass=false` and fa
 | `E26_NUMERIC_PRECHECK_FAILED` | Numeric pre-gate report missing or `numeric_truth_gate_pass != true` |
 | `E26_TRACE_MISSING` | Claim exists without explicit evidence pointer |
 | `E26_CLAIM_UNSUPPORTED` | Claim contradicted or not supported by artifacts |
+| `E26_DIRECTION_CONFLICT` | Evidence exists but contradicts the paper's stated direction, ranking, or hypothesis-support claim |
 
 ---
 

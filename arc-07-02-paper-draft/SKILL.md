@@ -23,6 +23,9 @@ Write a complete paper draft from the outline. All sections must be written, all
 - All evidence cited comes from `experiment_summary.json` (no unsubstantiated claims)
 - No section contains debugging logs, environment setup, or non-quantitative results as contributions
 - Method name (2–5 chars) is used consistently throughout
+- Bibliography planning targets at least 30 references, with at least 20% from the last 5 years unless the topic genuinely lacks recent primary literature
+- Every planned figure is tied to a real upstream artifact or metric before the draft is finalized
+- Every planned figure carries a provenance declaration in the draft using a machine-checkable comment such as `<!-- fig-src: stage-14/experiment_summary.json > metric_name -->`
 
 ---
 
@@ -31,6 +34,7 @@ Write a complete paper draft from the outline. All sections must be written, all
 `artifacts/<run_id>/stage-14/analysis.md`
 `artifacts/<run_id>/stage-14/results_table.tex`
 `artifacts/<run_id>/stage-14/experiment_summary.json`
+`artifacts/<run_id>/template/template_manifest.json`
 
 ---
 
@@ -76,11 +80,12 @@ Max retries: **1** — retry specifically if abstract word count is wrong.
 ## Procedure
 
 ### Step 1 — Read All Inputs
-Read `outline.md`, `analysis.md`, `results_table.tex`, and `experiment_summary.json`. Note:
+Read `outline.md`, `analysis.md`, `results_table.tex`, `experiment_summary.json`, and `template_manifest.json`. Note:
 - The contribution claim (one sentence from the abstract plan)
 - All quantitative results to include
 - Figure/table labels from `results_table.tex`
 - The method name (2–5 chars) to use consistently
+- The resolved publication type, target venue, submission mode, any required/forbidden sections, and any hard figure-count/style rules
 
 ### Step 2 — Draft Front Matter
 
@@ -114,6 +119,7 @@ Target: ≥600 words, organized by category:
 3. For each category: 1 paragraph summarizing the line + 1–2 sentences positioning this paper
 4. Do NOT write paper-by-paper summaries — synthesize
 5. End each paragraph with how this paper relates/differs
+6. Plan the bibliography so the paper converges toward at least 30 verified references with at least 20% published within the last 5 years where the topic permits
 
 ### Step 5 — Draft Method
 
@@ -131,6 +137,14 @@ Target: 1200–2000 words:
 2. **Main Results** — lead with the strongest result, cite `experiment_summary.json`
 3. **Ablation Studies** — each ablation component gets a paragraph with quantitative evidence
 4. Every claim in the Introduction must have supporting evidence here
+5. Ensure planned figures are evidence-bearing, not decorative, and satisfy the resolved minimum figure count and style constraints
+
+### Step 6a — Declare Figure Provenance Before Export
+For every planned figure/table in the draft:
+1. Identify the exact upstream artifact and metric that justifies it
+2. Add a machine-checkable provenance marker near the planned figure reference using a comment such as `<!-- fig-src: stage-14/experiment_summary.json > metric_name -->`
+3. Do not keep any planned figure whose source artifact or metric cannot be named concretely
+4. Treat unsupported or decorative planned figures as draft failures that must be fixed before Stage 22 export
 
 ### Step 7 — Draft Conclusion + Broader Impact
 
@@ -138,7 +152,8 @@ Target: 200–400 words:
 1. Summarize contributions (rephrase, don't copy from Introduction)
 2. Acknowledge ≥1 specific limitation honestly
 3. State 1–2 concrete future directions
-4. Ethics statement if required by venue
+4. Ethics statement or broader-impact language only if required by the resolved venue/journal template rules
+5. Respect submission mode constraints (for example, no author-identifying prose in anonymous conference mode)
 
 ### Step 8 — De-AI Polish Pass (full draft review)
 

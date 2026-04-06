@@ -1,6 +1,6 @@
 ---
 name: arc-08-01-quality-gate
-description: Stage 20 (GATE, NONCRITICAL) — Final quality gate assessment. Pipeline blocks here until approved. NONCRITICAL: failure does not block deliverables.
+description: Stage 20 (GATE, NONCRITICAL) — Final quality gate assessment. Pipeline blocks here until approved. NONCRITICAL only for iteration bookkeeping: Stage 22+ handoff still requires approval.
 metadata:
   category: pipeline-stage
   trigger-keywords: "quality gate,approval,stage 20"
@@ -11,7 +11,7 @@ metadata:
 ---
 
 ## Purpose
-Assess whether the revised paper meets a minimum quality threshold for submission readiness. This is a GATE stage but is NONCRITICAL — rejection rolls back to stage 16, not abort.
+Assess whether the revised paper meets a minimum quality threshold for submission readiness. This is a GATE stage but is NONCRITICAL only in the sense that rejection rolls back to stage 16 rather than aborting the entire run. Export, citation verification, polish, and late-stage acceptance MUST NOT proceed from an unapproved Stage 20 result.
 
 ---
 
@@ -24,6 +24,8 @@ Assess whether the revised paper meets a minimum quality threshold for submissio
   - ≥2 research gaps identified in Related Work
   - Limitations section explicitly acknowledges ≥1 specific limitation
   - All citation references are verifiable
+  - Reference plan is on track for at least 30 verified citations
+  - Recent-literature ratio is on track for at least 20% from the last 5 years, unless explicitly justified by topic constraints
 
 ---
 
@@ -40,6 +42,15 @@ Assess whether the revised paper meets a minimum quality threshold for submissio
 {
   "quality_score": 0.78,
   "meets_threshold": true,
+  "citation_checks": {
+    "reference_count": 32,
+    "reference_count_min": 30,
+    "reference_count_pass": true,
+    "recent_reference_ratio": 0.28,
+    "recent_reference_ratio_min": 0.20,
+    "recent_reference_ratio_pass": true,
+    "topic_constraint_justified": false
+  },
   "section_scores": {
     "abstract": 0.85,
     "introduction": 0.72,
@@ -63,6 +74,8 @@ Assess whether the revised paper meets a minimum quality threshold for submissio
 - [x] All figure/table refs valid
 - [x] Limitations section present
 - [x] All citations verifiable
+- [x] Reference count on track for ≥30
+- [x] Recent-reference ratio on track for ≥20%
 ```
 
 ---
@@ -71,9 +84,9 @@ Assess whether the revised paper meets a minimum quality threshold for submissio
 
 | Action | Outcome |
 |--------|---------|
-| `auto_approve_gates=true` | `done`, advance to stage 21 |
-| `approve` | `done`, advance to stage 21 |
-| `reject` | `rejected`, pipeline rolls back to stage 16 |
+| `auto_approve_gates=true` and `meets_threshold=true` | `done`, advance to stage 21 |
+| `approve` and `meets_threshold=true` | `done`, advance to stage 21 |
+| `reject` or `meets_threshold=false` | `rejected`, pipeline rolls back to stage 16 |
 
 ---
 
@@ -104,6 +117,8 @@ Verify:
 - Related Work identifies ≥2 research gaps
 - Limitations subsection acknowledges ≥1 specific limitation
 - All citations reference verifiable entries
+- The draft/revision is on track for at least 30 verified references
+- The draft/revision is on track for at least 20% recent references, unless topic constraints are explicitly documented
 
 ### Step 4 — Write quality_report.json
 Compute `quality_score` as the average of section scores. Set `meets_threshold: true` only if all critical issues are resolved.
@@ -112,7 +127,7 @@ Compute `quality_score` as the average of section scores. Set `meets_threshold: 
 Mark each checklist item as complete or incomplete.
 
 ### Step 6 — Block at Gate
-Set status to `blocked_approval`. Wait for approve/reject. On `approve`: advance to stage 21. On `reject`: initiate rollback to stage 16.
+Set status to `blocked_approval`. Wait for approve/reject. On `approve` with `meets_threshold=true`: advance to stage 21. On `reject` or `meets_threshold=false`: initiate rollback to stage 16. A failed or bypassed Stage-20 assessment may still be logged during iterative work, but it does not authorize Stage 22 export or any later stage-22+ handoff.
 
 ---
 
@@ -130,7 +145,7 @@ Set status to `blocked_approval`. Wait for approve/reject. On `approve`: advance
 ---
 
 ## Noncritical Note
-This stage is **NONCRITICAL**. If `skip_noncritical=true` and this stage fails (not rejected), the pipeline continues without blocking deliverables.
+This stage is **NONCRITICAL** only for iteration bookkeeping and rollback severity. If `skip_noncritical=true`, the run may continue collecting diagnostics or revision work, but Stage 20 approval is still required before Stage 22 export, citation verification, polish, or final late-stage acceptance can be treated as valid.
 
 ---
 

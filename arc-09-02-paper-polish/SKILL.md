@@ -12,7 +12,7 @@ metadata:
 
 ## Purpose
 
-Polish the stage-22 export package to remove AI writing patterns, fix logical narrative gaps, enforce section word counts, and regenerate the final canonical package used by trust gates. This is a **critical stage** — output MUST pass all quality checks or the pipeline is blocked.
+Polish the stage-22 export package to remove AI writing patterns, fix logical narrative gaps, enforce section word counts, and regenerate the final canonical package used by the remaining late-stage gates. This is a **critical stage** — output MUST pass all quality checks or the pipeline is blocked.
 
 ---
 
@@ -45,6 +45,8 @@ Polish the stage-22 export package to remove AI writing patterns, fix logical na
 - Conclusion: ~0.5 pages
 - All `\ref{}`/`\cref{}` have corresponding labels
 - All citation commands have BibTeX entries
+- Final bibliography should contain at least 30 verified references unless topic constraints are explicitly justified
+- References from the last 5 years should comprise at least 20% of the bibliography unless topic constraints are explicitly justified
 - No TODO/FIXME/XXX markers
 - No `[VERIFY]` markers remaining unchecked
 - No stale section files (every .tex in `sections/` is `\input`ed)
@@ -58,6 +60,7 @@ Polish the stage-22 export package to remove AI writing patterns, fix logical na
 `artifacts/<run_id>/stage-23/verification_report.json`
 `artifacts/<run_id>/stage-23/references_verified.bib`
 `artifacts/<run_id>/stage-22/reproducibility_report.json`
+`artifacts/<run_id>/stage-22/template_manifest.json`
 `artifacts/<run_id>/stage-24/AUTO_REVIEW.md` (reviewer feedback if available)
 
 ---
@@ -80,10 +83,10 @@ Compiled PDF produced from the polished LaTeX package.
 Compile summary for the polished package.
 
 ### `artifacts/<run_id>/stage-25/manifest.json`
-Artifact manifest for the polished package with paths and checksums, including `reproducibility_report.json`, `code/`, and `charts/` integrity coverage.
+Artifact manifest for the polished package with paths and checksums, including `reproducibility_report.json`, `template_manifest.json`, `code/`, and `charts/` integrity coverage.
 
 ### `artifacts/<run_id>/stage-25/deliverables/`
-Final polished submission bundle for downstream trust gates. This directory mirrors the stage-22 package structure, but with `paper_polished.md` as the canonical paper source, `references_verified.bib` propagated into the final `references.bib`, and `reproducibility_report.json` preserved.
+Final polished submission bundle for the remaining late-stage gates. This directory mirrors the stage-22 package structure, but with `paper_polished.md` as the canonical paper source, `references_verified.bib` propagated into the final `references.bib`, `template_manifest.json` preserved, and `reproducibility_report.json` preserved.
 
 ### `artifacts/<run_id>/stage-25/polish_report.json`
 ```json
@@ -98,6 +101,15 @@ Final polished submission bundle for downstream trust gates. This directory mirr
     "experiments": 1650,
     "conclusion": 280
   },
+  "citation_checks": {
+    "reference_count": 34,
+    "reference_count_min": 30,
+    "reference_count_pass": true,
+    "recent_reference_ratio": 0.26,
+    "recent_reference_ratio_min": 0.20,
+    "recent_reference_ratio_pass": true,
+    "topic_constraint_justified": false
+  },
   "structural_issues": [],
   "citation_issues": [],
   "pass": true,
@@ -111,7 +123,7 @@ Final polished submission bundle for downstream trust gates. This directory mirr
 
 ### Step 1 — De-AI Polish Pass
 
-Scan `artifacts/<run_id>/stage-22/paper_final.md` for the following patterns and fix each, then write the revised result to `artifacts/<run_id>/stage-25/paper_polished.md`:
+Scan `artifacts/<run_id>/stage-22/paper_final.md` and `artifacts/<run_id>/stage-22/template_manifest.json` for the following patterns and fix each, then write the revised result to `artifacts/<run_id>/stage-25/paper_polished.md`:
 
 **Forbidden word replacement:**
 | Replace | With |
@@ -196,7 +208,9 @@ Run all checks from `arc-07-02-paper-draft` Validation section plus:
 - [ ] Related Work ≥ 1 full page
 - [ ] Title is specific and informative
 - [ ] Contribution list in intro matches paper content
-- [ ] Prepare the paper package so downstream trust gates can verify claims, figures, and submission format without further structural rewrites
+- [ ] Verified reference count reaches at least 30 unless explicitly justified by topic constraints
+- [ ] Recent-reference ratio reaches at least 20% unless explicitly justified by topic constraints
+- [ ] Prepare the paper package so the remaining late-stage gates can verify claims, figures, and submission format without further structural rewrites
 
 ### Step 5 — Integrate Reviewer Feedback
 
@@ -215,8 +229,9 @@ Produce a refreshed polished package that mirrors the stage-22 schema:
 - Derive final `artifacts/<run_id>/stage-25/references.bib` from `artifacts/<run_id>/stage-23/references_verified.bib`
 - Compile `artifacts/<run_id>/stage-25/main.pdf`
 - Write `artifacts/<run_id>/stage-25/compile_report.json`
-- Write `artifacts/<run_id>/stage-25/manifest.json` with artifact paths and checksums, including `reproducibility_report.json`, `code/`, and `charts/`
-- Assemble `artifacts/<run_id>/stage-25/deliverables/` with `main.tex`, `main.pdf`, `references.bib`, `paper_polished.md`, `compile_report.json`, `manifest.json`, `reproducibility_report.json`, `code/`, and `charts/` for downstream trust gates
+- Carry forward or refresh figure provenance sidecars so every polished figure in `charts/` still has a valid `<figure>.provenance.json` linked to the polished package
+- Write `artifacts/<run_id>/stage-25/manifest.json` with artifact paths and checksums, including `reproducibility_report.json`, `code/`, `charts/`, and figure provenance sidecars
+- Assemble `artifacts/<run_id>/stage-25/deliverables/` with `main.tex`, `main.pdf`, `references.bib`, `paper_polished.md`, `compile_report.json`, `manifest.json`, `reproducibility_report.json`, `code/`, and `charts/` for the remaining late-stage gates
 
 ---
 
@@ -232,6 +247,8 @@ Produce a refreshed polished package that mirrors the stage-22 schema:
 | Citation verification | No `[VERIFY]` markers remaining |
 | Citation set stable | Polished citation keys are a subset of Stage-22 citation keys; no new keys introduced |
 | Verified bibliography preserved | Final `references.bib` is derived from `references_verified.bib` only |
+| Reference count threshold | `citation_checks.reference_count_pass == true` unless topic constraint is justified |
+| Recent-reference ratio threshold | `citation_checks.recent_reference_ratio_pass == true` unless topic constraint is justified |
 | Reproducibility preserved | `reproducibility_report.json` is present and semantic fields are unchanged |
 | No stale files | All `.tex` sections are referenced |
 | Polished package ready | `main.tex`, `main.pdf`, `references.bib`, `compile_report.json`, `manifest.json`, `reproducibility_report.json`, and `deliverables/` are produced in the same schema expected from the stage-22 export handoff |
@@ -249,6 +266,7 @@ Produce a refreshed polished package that mirrors the stage-22 schema:
 | `E25_CLAIM_GAP` | A required claim from `experiment_summary.json` is still missing from the paper |
 | `E25_REVIEWER_UNRESOLVED` | A CRITICAL or MAJOR reviewer issue from stage 24 remains unresolved |
 | `E25_CITATION_DRIFT` | Polish introduced citation drift relative to the verified stage-23 bibliography |
+| `E25_CITATION_THRESHOLD` | Polished paper fails the reference-count or recent-reference-ratio threshold without justified topic constraints |
 | `E25_REPRODUCIBILITY_DRIFT` | Polish changed reproducibility metadata semantically instead of preserving it |
 | `E25_PACKAGE_INCOMPLETE` | The polished package is missing required artifacts or failed compile validation |
 

@@ -12,7 +12,7 @@ metadata:
 
 ## Purpose
 
-Verify all citations in the final paper against Stage 4's verified literature corpus. **NEW citations** (added during paper writing) require fresh verification. Hallucinated citations MUST block the pipeline.
+Verify all citations in the final paper against Stage 4's verified literature corpus. **NEW citations** (added during paper writing) require fresh verification. Hallucinated citations MUST block the pipeline. This stage also checks whether the verified bibliography is sufficient for downstream acceptance targets on total reference count and recent-reference ratio.
 
 ---
 
@@ -96,6 +96,12 @@ Write `verification_report.json`:
   "new_verified": 8,
   "unverifiable": 2,
   "hallucinated": 2,
+  "recent_reference_ratio": 0.26,
+  "reference_count_min": 30,
+  "reference_count_pass": true,
+  "recent_reference_ratio_min": 0.20,
+  "recent_reference_ratio_pass": true,
+  "topic_constraint_justified": false,
   "stage_blocked": true,
   "breakdown": {
     "from_stage4": 35,
@@ -110,11 +116,27 @@ Write `verification_report.json`:
 }
 ```
 
-### Step 7 — Blocking Decision
+### Step 7 — Citation Sufficiency Check
+
+Using the verified bibliography after hallucination filtering, compute:
+- total verified reference count
+- fraction of verified references from the last 5 years
+
+Record whether the verified bibliography meets downstream targets of at least 30 references and at least 20% recent references. If the target is not met but the topic genuinely lacks sufficient recent literature, require explicit justification in the report rather than silently passing.
+
+### Step 8 — Blocking Decision
 
 If `hallucinated > 0`:
 1. Set `stage_blocked: true`
 2. Fail with `E23` (hard block)
+
+If `unverifiable > 0`:
+1. Set `stage_blocked: true`
+2. Fail with `E23` (hard block)
+
+If citation sufficiency fails without justified topic constraints:
+1. Keep `stage_blocked: true`
+2. Fail with `E23_CITATION_THRESHOLD`
 
 ---
 
@@ -143,8 +165,12 @@ BibTeX with verification tags.
 | Stage 4 corpus loaded | `known_verified` count matches lookup |
 | NEW citations verified | Each NEW has verification attempt logged |
 | No hallucinations | `hallucinated == 0` |
+| No unverifiable citations | `unverifiable == 0` |
+| Reference count threshold | `reference_count_pass == true` unless topic constraint is justified |
+| Recent-reference threshold | `recent_reference_ratio_pass == true` unless topic constraint is justified |
 
-**Failure**: `hallucinated > 0` → `E23`
+**Failure**: `hallucinated > 0` or `unverifiable > 0` → `E23`
+**Failure**: citation sufficiency fails without justification → `E23_CITATION_THRESHOLD`
 
 ---
 
@@ -153,6 +179,7 @@ BibTeX with verification tags.
 | Code | Trigger |
 |------|---------|
 | `E23` | Stage-23 citation verification found hallucinated or unverifiable citations in the stage-22 package |
+| `E23_CITATION_THRESHOLD` | Verified bibliography fails the reference-count or recent-reference-ratio threshold without justified topic constraints |
 | `E23_STAGE4_MISSING` | Stage-4 verified corpus (`candidates.jsonl`) is missing |
 
 ---
